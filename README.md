@@ -1,2 +1,2 @@
 # blog
-Blog wojciechnagorski.com 
+Blog [wojciechnagorski.com](www.wojciechnagorski.com) created in [HUGO](https://themes.gohugo.io/).
