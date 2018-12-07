@@ -1,0 +1,2 @@
+# blog
+Blog wojciechnagorski.com 
