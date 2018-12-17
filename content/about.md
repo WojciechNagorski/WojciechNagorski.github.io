@@ -9,7 +9,7 @@ meta = "false"
 
 My name is **Wojciech Nagórski**
 
-I'm a Senior Software developer & Team Leader & Presales at [Solwit S. A.](https://www.solwit.com)
+I'm a Senior Software Developer & Team Leader & Presales at [Solwit S. A.](https://www.solwit.com)
 
 I'm a contributor in open source projects:
 
