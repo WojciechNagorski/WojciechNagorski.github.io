@@ -45,10 +45,16 @@ pygmentsCodeFences = true
 	
 ## Main Menu
 [[menu.main]]
-    name = "Subscribe"
+    name = "Categories"
     weight = 20
-    identifier = "subscribe"
-    url = "/index.xml"	
+    identifier = "categories"
+    url = "/categories"	
+	
+[[menu.main]]
+    name = "Tags"
+    weight = 20
+    identifier = "tags"
+    url = "/tags"	
 	
 [params.assets]
 customCSS = ["css/custom.css"]
