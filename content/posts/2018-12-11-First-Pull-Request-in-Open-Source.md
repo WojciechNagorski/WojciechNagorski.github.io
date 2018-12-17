@@ -13,8 +13,6 @@ tags:
   - FirstPullRequest
 ---
 
-## First pull Request in Open Source
-
 Not so long ago, I saw a video [Adam Sitnik - My awesome journey with Open Source](https://www.youtube.com/watch?v=2HSPKyAyuik) and it opened my eyes. 
 
 I am a senior developer with 11 years of experience in programming. In my career, I did a lot of great things connected to programming, but only my colleagues from work knew about it. If I would like to change my job, I would have to prove my qualifications. Another sad thing about both my personal and business projects is that most of my code is NOT used anymore. It really makes me sad. Than that video came up. Adam showed me that I can create code that will be used all over the world for many, many years. Solution is Open Source.

@@ -23,7 +23,7 @@
          <guid>/about/</guid>
          <description>&lt;p&gt;My name is &lt;strong&gt;Wojciech Nagórski&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;I&amp;rsquo;m a Senior Software developer &amp;amp; Team Leader &amp;amp; Presales at &lt;a href=&#34;https://www.solwit.com&#34;&gt;Solwit S. A.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;m a Senior Software Developer &amp;amp; Team Leader &amp;amp; Presales at &lt;a href=&#34;https://www.solwit.com&#34;&gt;Solwit S. A.&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;I&amp;rsquo;m a contributor in open source projects:&lt;/p&gt;
 
@@ -43,8 +43,6 @@
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
          <guid>/2018/12/first-pull-request-in-open-source/</guid>
          <description>
-
-&lt;h2 id=&#34;first-pull-request-in-open-source&#34;&gt;First pull Request in Open Source&lt;/h2&gt;
 
 &lt;p&gt;Not so long ago, I saw a video &lt;a href=&#34;https://www.youtube.com/watch?v=2HSPKyAyuik&#34;&gt;Adam Sitnik - My awesome journey with Open Source&lt;/a&gt; and it opened my eyes.&lt;/p&gt;
 
