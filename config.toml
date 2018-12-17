@@ -1,0 +1,54 @@
+baseurl = "/"
+languageCode = "en-us"
+publishDir = "docs"
+# canonifyurls = true
+theme = "kiera"
+
+newContentEditor = "C:\\Program Files\\Typora\\typora.exe"
+
+## Hugo Built-in Features
+disqusShortname = "wojciechnagorski"
+googleAnalytics = "UA-130630724-1"
+enableRobotsTXT = true
+
+
+title = "Wojciech Nagórski"
+copyright = "&copy; 2018 Wojciech Nagórski"
+
+paginate = 15
+
+summaryLength = 30
+enableEmoji = true
+pygmentsCodeFences = true
+
+[taxonomies]
+	category = "categories"
+	series = "series"
+	tag = "tags"
+	author = "authors"
+
+[author]
+    name = "Wojciech Nagórski"
+    github = "wojtpl2"
+	linkedin = "wojciech-nagórski-a3420493"
+    #gitter = ""
+    #facebook = ""
+    #twitter = ""
+    email = "wojtpl2@gmail.com"
+
+[permalinks]
+  posts = "/:year/:month/:title/"
+	
+[params]
+    description = "Wojciech Nagórski"
+    tagline = "What have I done in .NET world."
+	
+## Main Menu
+[[menu.main]]
+    name = "Subscribe"
+    weight = 20
+    identifier = "subscribe"
+    url = "/index.xml"	
+	
+[params.assets]
+customCSS = ["css/custom.css"]

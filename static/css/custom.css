@@ -1,0 +1,14 @@
+a {
+	color: #2801B2;
+}
+
+h1 a {
+	color: #333333
+}
+
+.float-normal, fiure.normal img, img, img[src*="normal"]{
+    width:auto;
+    height:auto;
+    min-width: 0;
+    max-width: none;
+}
