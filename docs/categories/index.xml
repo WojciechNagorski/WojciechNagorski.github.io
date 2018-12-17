@@ -10,9 +10,28 @@
        <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
        <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
        <copyright>&amp;copy; 2018 Wojciech Nagórski</copyright>
+       <lastBuildDate>Tue, 11 Dec 2018 11:16:00 -0400</lastBuildDate>
        
            <atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
        
+       
+       <item>
+         <title>Benchmarkdotnet</title>
+         <link>/categories/benchmarkdotnet/</link>
+         <pubDate>Tue, 11 Dec 2018 11:16:00 -0400</pubDate>
+         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+         <guid>/categories/benchmarkdotnet/</guid>
+         <description></description>
+       </item>
+       
+       <item>
+         <title>Opensource</title>
+         <link>/categories/opensource/</link>
+         <pubDate>Tue, 11 Dec 2018 11:16:00 -0400</pubDate>
+         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+         <guid>/categories/opensource/</guid>
+         <description></description>
+       </item>
        
      </channel>
    </rss>

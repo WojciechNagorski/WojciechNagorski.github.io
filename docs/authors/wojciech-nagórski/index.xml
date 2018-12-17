@@ -3,7 +3,7 @@
    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
      <channel>
        <title>Wojciech Nagórski</title>
-       <link>/</link>
+       <link>/authors/wojciech-nag%C3%B3rski/</link>
        <description>Recent content on Wojciech Nagórski</description>
        <generator>Hugo -- gohugo.io</generator>
        <language>en-us</language>
@@ -12,29 +12,8 @@
        <copyright>&amp;copy; 2018 Wojciech Nagórski</copyright>
        <lastBuildDate>Tue, 11 Dec 2018 11:16:00 -0400</lastBuildDate>
        
-           <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+           <atom:link href="/authors/wojciech-nag%C3%B3rski/index.xml" rel="self" type="application/rss+xml" />
        
-       
-       <item>
-         <title>About</title>
-         <link>/about/</link>
-         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
-         <guid>/about/</guid>
-         <description>&lt;p&gt;My name is &lt;strong&gt;Wojciech Nagórski&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;m a Senior Software developer &amp;amp; Team Leader &amp;amp; Presales at &lt;a href=&#34;https://www.solwit.com&#34;&gt;Solwit S. A.&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;I&amp;rsquo;m a contributor in open source projects:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/aaubry/YamlDotNet&#34;&gt;YamlDotNet&lt;/a&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;I&amp;rsquo;m an author of the first version of &lt;a href=&#34;https://github.com/wojtpl2/ExtendedXmlSerializer&#34;&gt;ExtendedXmlSerializer&lt;/a&gt;.&lt;/p&gt;
-</description>
-       </item>
        
        <item>
          <title>First Pull Request in Open Source</title>
