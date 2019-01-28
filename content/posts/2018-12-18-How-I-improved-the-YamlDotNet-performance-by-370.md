@@ -1,5 +1,6 @@
 ---
 title: "How I improved the YamlDotNet performance by 370%"
+description: "Thanks to using BenchmarkDotNet I improved the YamlDotNet performance by 370%."
 date: 2018-12-18T02:11:01-01:00
 year: "2018"
 authors:

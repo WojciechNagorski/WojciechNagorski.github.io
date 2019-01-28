@@ -1,5 +1,6 @@
 ---
 title: "First Pull Request in Open Source"
+description: "The history of the first pull request to BenchmarkDotNet"
 date: 2018-12-11T11:16:00-04:00
 year: "2018"
 authors:
