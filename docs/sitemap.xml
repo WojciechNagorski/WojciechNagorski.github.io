@@ -7,6 +7,11 @@
   </url>
   
   <url>
+    <loc>/2019/01/generates-disassembly-of-.net-functions/</loc>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2018/12/how-i-improved-the-yamldotnet-performance-by-370/</loc>
     <lastmod>2018-12-18T02:11:01-01:00</lastmod>
   </url>
@@ -23,19 +28,25 @@
   
   <url>
     <loc>/tags/benchmarkdotnet/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/benchmarkdotnet/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/disassembly/</loc>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -47,13 +58,13 @@
   
   <url>
     <loc>/categories/opensource/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/posts/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -64,19 +75,19 @@
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/authors/wojciech-nag%C3%B3rski/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   

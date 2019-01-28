@@ -10,10 +10,149 @@
        <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
        <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
        <copyright>&amp;copy; 2018 Wojciech Nagórski</copyright>
-       <lastBuildDate>Tue, 18 Dec 2018 02:11:01 -0100</lastBuildDate>
+       <lastBuildDate>Mon, 28 Jan 2019 02:13:54 -0400</lastBuildDate>
        
            <atom:link href="/categories/opensource/index.xml" rel="self" type="application/rss+xml" />
        
+       
+       <item>
+         <title>Generates disassembly of .NET functions</title>
+         <link>/2019/01/generates-disassembly-of-.net-functions/</link>
+         <pubDate>Mon, 28 Jan 2019 02:13:54 -0400</pubDate>
+         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+         <guid>/2019/01/generates-disassembly-of-.net-functions/</guid>
+         <description>
+
+&lt;p&gt;In this post you will learn how to generate the disassembly of .NET functions and how to diff many of them.&lt;/p&gt;
+
+&lt;p&gt;It was not so long ago when I added a new feature to &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; that allows you to generate a diff raport for many dissassembly of .NET function. You can see all the changes in following PRs: &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/927&#34;&gt;#927&lt;/a&gt;, &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/937&#34;&gt;#937&lt;/a&gt; and &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/1022&#34;&gt;#1022&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In this post I will be using the benchmark code from PR &lt;a href=&#34;https://github.com/dotnet/coreclr/pull/13626&#34;&gt;dotnet/coreclr#13626&lt;/a&gt; to &lt;a href=&#34;https://github.com/dotnet/coreclr&#34;&gt;CoreCLR&lt;/a&gt; repo. In metioned PR &lt;a href=&#34;https://github.com/mikedn&#34;&gt;@mikedn&lt;/a&gt; enables JIT to generate more efficient BT instruction in some situations. It is great example to show my exporter in action.&lt;/p&gt;
+
+&lt;h5 id=&#34;generates-disassembly&#34;&gt;Generates disassembly&lt;/h5&gt;
+
+&lt;p&gt;In &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; you can easily generate disassembler for .NET function. All you need is add &lt;code&gt;[DisassemblyDiagnoser]&lt;/code&gt; attribute to your benchmark, like below:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [DisassemblyDiagnoser]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroDisassembly&lt;/span&gt;
+    {&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark(OperationsPerInvoke = 10_000_000)]&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; LoweringTESTtoBT()
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, x = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (x++ &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;_000_000)
+                &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; ((x &amp;amp; (&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &amp;lt;&amp;lt; y)) == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+                    y++;
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; y;
+        }
+    }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can also do this with the &lt;code&gt;-d&lt;/code&gt; or &lt;code&gt;--disasm&lt;/code&gt; command line arguments.&lt;/p&gt;
+
+&lt;p&gt;Running this benchmark will create lot of reports in directory&lt;code&gt;BenchmarkDotNet.Artifacts\results&lt;/code&gt;. Among them is &lt;code&gt;ProjectName.IntroDisassembly-asm.pretty.md&lt;/code&gt; that looks like:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;.NET Core 2.1.6 (CoreCLR 4.6.27019.06, CoreFX 4.6.27019.05), 64bit RyuJIT&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-assembly&#34; data-lang=&#34;assembly&#34;&gt;; BenchmarkDotNet.Samples.IntroDisassemblyCode.LoweringTESTtoBT()
+       xor     eax,eax
+       xor     edx,edx
+       jmp     M00_L01
+M00_L00:
+       bt      ecx,eax
+       mov     edx,ecx
+       jb      M00_L01
+       inc     eax
+M00_L01:
+       lea     ecx,[rdx+1]
+       cmp     edx,989680h
+       jl      M00_L00
+       ret
+; Total bytes of code 27&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can use this feature to understand why one solution is better then other or you can learn about how C# code which you wrote works on your computer.&lt;/p&gt;
+
+&lt;p&gt;Nothing new so far ;)&lt;/p&gt;
+
+&lt;h5 id=&#34;generates-diff-of-two-disassembly&#34;&gt;Generates diff of two disassembly&lt;/h5&gt;
+
+&lt;p&gt;Sometimes your code works fast on newer version of .NET Core and works slow on the older one. That is quite common case, because .NET Core is improving very fast. In other case you probably would see performance regression and create issue to &lt;a href=&#34;https://github.com/dotnet/coreclr&#34;&gt;CoreCLR&lt;/a&gt; repo.&lt;/p&gt;
+
+&lt;p&gt;If you want to generate disassembly of function for multiple .NET versions, just configure your test, e. g.:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[Config(typeof(MultipleJits))]&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroDisassembly&lt;/span&gt;
+{&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark(OperationsPerInvoke = 10_000_000)]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; LoweringTESTtoBT()
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, x = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (x++ &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;_000_000)
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; ((x &amp;amp; (&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &amp;lt;&amp;lt; y)) == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+                y++;
+
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; y;
+    }
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MultipleJits&lt;/span&gt; : ManualConfig
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; MultipleJits()
+    {
+        &lt;span style=&#34;color:#75715e&#34;&gt;// .NET core 2.0
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Add(Job.ShortRun.With(Platform.X64).With(CsProjCoreToolchain.NetCoreApp20));
+        &lt;span style=&#34;color:#75715e&#34;&gt;// .NET core 2.1
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Add(Job.ShortRun.With(Platform.X64).With(CsProjCoreToolchain.NetCoreApp21));
+        
+        &lt;span style=&#34;color:#75715e&#34;&gt;// Add disassembly diagnoser with printDiff = true
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Add(DisassemblyDiagnoser.Create(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; DisassemblyDiagnoserConfig(printAsm: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;, printPrologAndEpilog: &lt;span style=&#34;color:#66d9ef&#34;&gt;false&lt;/span&gt;, recursiveDepth: &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, printDiff: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;)));
+    }
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In this example I added two jobs. One for .NET Core 2.0 and other for .NET Core 2.1. I added also &lt;code&gt;DisassemblyDiagnoser&lt;/code&gt; with &lt;code&gt;printDiff&lt;/code&gt; option set to &lt;code&gt;true&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;After benchmark run, you can see that &lt;a href=&#34;https://github.com/mikedn&#34;&gt;@mikedn&amp;rsquo;s&lt;/a&gt; optimization made this code much faster on .NET Core 2.1:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;           &lt;span style=&#34;color:#a6e22e&#34;&gt;Method |     Toolchain |      Mean |     Error |    StdDev |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;----------------- |-------------- |----------:|----------:|----------:|&lt;/span&gt;
+ &lt;span style=&#34;color:#a6e22e&#34;&gt;LoweringTESTtoBT | .NET Core 2.0 | 2.3164 ns | 0.8837 ns | 0.0484 ns |&lt;/span&gt;
+ &lt;span style=&#34;color:#a6e22e&#34;&gt;LoweringTESTtoBT | .NET Core 2.1 | 0.6531 ns | 0.2882 ns | 0.0158 ns |&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In directory &lt;code&gt;BenchmarkDotNet.Artifacts\results&lt;/code&gt; you will see also &lt;code&gt;ProjectName.IntroDisassembly-asm.pretty.diff.md&lt;/code&gt; that looks:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;BenchmarkDotNet.Samples.IntroDisassemblyCode&lt;/strong&gt;
+&lt;strong&gt;Diff for LoweringTESTtoBT method between:&lt;/strong&gt;
+.NET Core 2.0.9 (CoreCLR 4.6.26614.01, CoreFX 4.6.26614.01), 64bit RyuJIT
+.NET Core 2.1.6 (CoreCLR 4.6.27019.06, CoreFX 4.6.27019.05), 64bit RyuJIT&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;; BenchmarkDotNet.Samples.IntroDisassemblyCode.LoweringTESTtoBT()
+        xor     eax,eax
+        xor     edx,edx
+        jmp     M00_L01
+ M00_L00:
+&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     ecx,eax
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       and     ecx,1Fh
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     edx,1
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       shl     edx,cl
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     ecx,dword ptr [rsp+4]
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       test    edx,ecx
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+       bt      ecx,eax
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;        mov     edx,ecx
+&lt;span style=&#34;color:#f92672&#34;&gt;-       jne     M00_L01
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+       jb      M00_L01
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;        inc     eax
+ M00_L01:
+        lea     ecx,[rdx+1]
+&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     dword ptr [rsp+4],ecx
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;        cmp     edx,989680h
+        jl      M00_L00
+&lt;span style=&#34;color:#f92672&#34;&gt;-       add     rsp,8
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-; Total bytes of code 49
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+       ret
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+; Total bytes of code 27
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h4 id=&#34;limitations&#34;&gt;Limitations&lt;/h4&gt;
+
+&lt;p&gt;Please note that this exporter internally uses the &lt;code&gt;git diff&lt;/code&gt; command, so it requires a &lt;a href=&#34;https://git-scm.com/&#34;&gt;GIT&lt;/a&gt; installed on the system.&lt;/p&gt;
+
+&lt;h4 id=&#34;summary&#34;&gt;Summary&lt;/h4&gt;
+
+&lt;p&gt;Thanks to this report you can easily see what has been changed in the assembly code on various versions of .NET runtimes. You can also copy and paste it to GitHub.&lt;/p&gt;
+</description>
+       </item>
        
        <item>
          <title>How I improved the YamlDotNet performance by 370%</title>

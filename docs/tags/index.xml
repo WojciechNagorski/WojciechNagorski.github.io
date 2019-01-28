@@ -10,7 +10,7 @@
        <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
        <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
        <copyright>&amp;copy; 2018 Wojciech Nagórski</copyright>
-       <lastBuildDate>Tue, 18 Dec 2018 02:11:01 -0100</lastBuildDate>
+       <lastBuildDate>Mon, 28 Jan 2019 02:13:54 -0400</lastBuildDate>
        
            <atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
        
@@ -18,9 +18,18 @@
        <item>
          <title>Benchmarkdotnet</title>
          <link>/tags/benchmarkdotnet/</link>
-         <pubDate>Tue, 18 Dec 2018 02:11:01 -0100</pubDate>
+         <pubDate>Mon, 28 Jan 2019 02:13:54 -0400</pubDate>
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
          <guid>/tags/benchmarkdotnet/</guid>
+         <description></description>
+       </item>
+       
+       <item>
+         <title>Disassembly</title>
+         <link>/tags/disassembly/</link>
+         <pubDate>Mon, 28 Jan 2019 02:13:54 -0400</pubDate>
+         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+         <guid>/tags/disassembly/</guid>
          <description></description>
        </item>
        

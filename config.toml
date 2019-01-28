@@ -41,7 +41,7 @@ pygmentsCodeFences = true
 	
 [params]
     description = "Wojciech Nagórski"
-    tagline = "What have I done in .NET world."
+    tagline = "What I have done in .NET world."
 	
 ## Main Menu
 [[menu.main]]
