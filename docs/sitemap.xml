@@ -7,6 +7,11 @@
   </url>
   
   <url>
+    <loc>/2019/09/using-native-dll-and-resource-files-in-benchmarkdotnet-projects/</loc>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/</loc>
     <lastmod>2019-08-08T02:13:54-04:00</lastmod>
   </url>
@@ -33,19 +38,19 @@
   
   <url>
     <loc>/tags/benchmarkdotnet/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/benchmarkdotnet/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -63,19 +68,19 @@
   
   <url>
     <loc>/tags/nativememory/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/opensource/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/posts/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -86,19 +91,19 @@
   
   <url>
     <loc>/tags/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/authors/wojciech-nag%C3%B3rski/</loc>
-    <lastmod>2019-08-08T02:13:54-04:00</lastmod>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   

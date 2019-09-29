@@ -1,0 +1,300 @@
+<!doctype html>
+
+<html lang="en-us">
+
+<head>
+  <title>Wojciech Nagórski</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="How to use native DLL and resource files in benchmark projects." />
+  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.51" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  <link rel="stylesheet" type="text/css" href="/css/styles.css" /><link rel='stylesheet' href='/css/custom.css'></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="/">Wojciech Nagórski</a>
+            </h1>
+
+      <ul id="social-media">
+        
+        <li><a href="https://twitter.com/WojtekNagorski"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+         
+        <li><a href="https://www.linkedin.com/in/wojciech-nag%c3%b3rski-a3420493"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+         
+        <li><a href="https://github.com/wojtpl2"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+            
+        <li><a href="mailto:wojtpl2@gmail.com"><i class="fas fa-at fa-lg" aria-hidden="true"></i></a></li>
+        
+        <li><a href="/index.xml"><i class="fas fa-rss fa-lg" aria-hidden="true"></i></a></li>
+      </ul>
+      
+      <p><em>What I have done in .NET world.</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/categories">
+                <i class="fa-li fa  fa-lg"></i><span>Categories</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/tags">
+                <i class="fa-li fa  fa-lg"></i><span>Tags</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Using native DLL and resource files in BenchmarkDotNet projects</h1>
+
+    
+        <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2019-09-30T02:13:54-04:00">Sep 30, 2019</time>
+        </li>
+        
+        
+        <li>
+            Categories: 
+            <em>
+                
+                    
+                    <a href="/categories/opensource/">OpenSource</a>
+                
+                    , 
+                    <a href="/categories/benchmarkdotnet/">BenchmarkDotNet</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="/tags/benchmarkdotnet/">#BenchmarkDotNet</a>
+                
+                    , 
+                    <a href="/tags/nativememory/">#NativeMemory</a>
+                
+            </em>
+        </li>
+        
+
+        <li>3 min read</li>
+    </ul>
+</aside>
+    
+
+    
+
+<p>In a previous <a href="/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/">post</a>, I described the <code>NativeMemoryProfiler</code> which I implemented in the <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a> library. It caused that I got many questions about using native DLL files in benchmark projects. Many people want to use <code>post-build</code> events but they do not work. There is an issue <a href="https://github.com/dotnet/BenchmarkDotNet/issues/946">dotnet/BenchmarkDotNet#946</a>. I know a better solution, so I decided to describe this topic.</p>
+
+<p>In this post, I would like to show you, how to use native DLL or resource files in benchmark projects.</p>
+
+<p>If you only need solution, you can navigate to the <a href="#solution">solution</a> section, but if you would like to understand the problem you need to read the whole article.</p>
+
+<h2 id="the-story">The story</h2>
+
+<p>When you run your benchmark project, the BenchmarkDotNet generates an isolated project that references to your project. This generated project is built and run, during each run of your benchmark. Let&rsquo;s create a really simple benchmark project that shows us this mechanism.</p>
+
+<p>In the beginning, we have to create a new project. I&rsquo;m going to use <a href="https://github.com/dotnet/cli">dotnet CLI</a>, so that you can follow the steps below on Windows, Linux or macOs.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">mkdir UsingResourcesWithBenchmarkDotNet</span>
+<span style="color:#a6e22e">cd UsingResourcesWithBenchmarkDotNet</span>
+<span style="color:#a6e22e">dotnet new console</span></code></pre></div>
+<p>Then we need to add the BenchmarkDotNet nuget to this project.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet add package BenchmarkDotNet</span></code></pre></div>
+<p>After configuring the project, we can implement our benchmark. Below is a <code>Program.cs</code> file:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#66d9ef">using</span> System;
+<span style="color:#66d9ef">using</span> BenchmarkDotNet.Attributes;
+<span style="color:#66d9ef">using</span> BenchmarkDotNet.Running;
+
+<span style="color:#66d9ef">namespace</span> UsingResourcesWithBenchmarkDotNet
+{
+    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Program</span>
+    {
+        <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> Main(<span style="color:#66d9ef">string</span><span style="color:#a6e22e">[]</span> args) =&gt;
+            BenchmarkSwitcher.FromAssembly(<span style="color:#66d9ef">typeof</span>(Program).Assembly).Run(args);
+    }
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Benchmark</span>
+    {<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">        [Benchmark]</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> Sum()
+        {
+            <span style="color:#66d9ef">int</span> result = <span style="color:#ae81ff">0</span>;
+            <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i = <span style="color:#ae81ff">0</span>; i &lt; <span style="color:#ae81ff">100</span>; i++)
+            {
+                result += i;
+            }
+
+            <span style="color:#66d9ef">return</span> result;
+        }
+    }
+}</code></pre></div>
+<p>Now we can run this project with a <code>--keepfiles</code> option. If you add this option, all auto-generated files will be kept after running the benchmark.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release -- --filter *Sum* --keepfiles</span></code></pre></div>
+<p>Now, <code>bin</code> directory should contain all generated files. In our case, we were run only one benchmark so all files should be in <code>DefaultJob</code> directory.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">λ cd bin\Release\netcoreapp3.0\DefaultJob</span>
+<span style="color:#a6e22e">λ ls  # or dir for windows console</span>
+<span style="color:#a6e22e">BenchmarkDotNet.Autogenerated.csproj  DefaultJob.bat  DefaultJob.notcs  bin/  obj/</span></code></pre></div>
+<p>As you can see, BenchmarkDotNet generates a new project for us, called<code>BenchmarkDotNet.Autogenerated.csproj</code>. For instance, when you want to run your benchmark for many frameworks, BenchmarkDotNet will generate many projects for you. Each generated project has its own <code>bin</code> directory and is run from this location.</p>
+
+<p>Since BenchmarkDotNet does not run benchmarks from default <code>bin</code> directory, you can not use any recourses from there. Therefore, <code>post-build</code> events do not work because they are running during building the benchmark project, not auto-generated projects.</p>
+
+<h2 id="solution">Solution</h2>
+
+<p>The solution is really simple. Instead of <code>post-build</code> events, you should use <a href="https://docs.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items?view=vs-2019#none">None or Compile project item</a>. Below you can see an example of copying <code>NativeDll.dll</code> from <code>solutionDir\x64\Release</code> directory into <code>bin</code> directory of the benchmark project, as well as into <code>bin</code> directories of all auto-generated projects that refer to the benchmark project. If you set <code>Visible</code> to true, then the file will be visible in the solution explorer.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;ItemGroup&gt;</span>
+  <span style="color:#f92672">&lt;None</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;$(MSBuildThisFileDirectory)..\x64\$(Configuration)\NativeDll.dll&#34;</span><span style="color:#f92672">&gt;</span>
+    <span style="color:#f92672">&lt;Link&gt;</span>NativeDll.dll<span style="color:#f92672">&lt;/Link&gt;</span>
+    <span style="color:#f92672">&lt;CopyToOutputDirectory&gt;</span>PreserveNewest<span style="color:#f92672">&lt;/CopyToOutputDirectory&gt;</span>
+    <span style="color:#f92672">&lt;Visible&gt;</span>True<span style="color:#f92672">&lt;/Visible&gt;</span>
+  <span style="color:#f92672">&lt;/None&gt;</span>
+<span style="color:#f92672">&lt;/ItemGroup&gt;</span></code></pre></div>
+<p>What&rsquo;s more, you do not have to add file by file. You can also copy the entire directory using this method.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#f92672">&lt;ItemGroup&gt;</span>
+    <span style="color:#f92672">&lt;None</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;$(MSBuildThisFileDirectory)..\Resources\**\*.*&#34;</span><span style="color:#f92672">&gt;</span>
+      <span style="color:#f92672">&lt;Link&gt;</span>%(Directory)\%(Filename)%(Extension)<span style="color:#f92672">&lt;/Link&gt;</span>
+      <span style="color:#f92672">&lt;CopyToOutputDirectory&gt;</span>PreserveNewest<span style="color:#f92672">&lt;/CopyToOutputDirectory&gt;</span>
+      <span style="color:#f92672">&lt;Visible&gt;</span>True<span style="color:#f92672">&lt;/Visible&gt;</span>
+    <span style="color:#f92672">&lt;/None&gt;</span>
+  <span style="color:#f92672">&lt;/ItemGroup&gt;</span></code></pre></div>
+<p>You can also copy all files of a given type, for example, all DLL files from a directory:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#f92672">&lt;ItemGroup&gt;</span>
+    <span style="color:#f92672">&lt;None</span> <span style="color:#a6e22e">Include=</span><span style="color:#e6db74">&#34;$(MSBuildThisFileDirectory)..\Resources\**\*.dll&#34;</span><span style="color:#f92672">&gt;</span>
+      <span style="color:#f92672">&lt;Link&gt;</span>%(Directory)\%(Filename)%(Extension)<span style="color:#f92672">&lt;/Link&gt;</span>
+      <span style="color:#f92672">&lt;CopyToOutputDirectory&gt;</span>PreserveNewest<span style="color:#f92672">&lt;/CopyToOutputDirectory&gt;</span>
+      <span style="color:#f92672">&lt;Visible&gt;</span>True<span style="color:#f92672">&lt;/Visible&gt;</span>
+    <span style="color:#f92672">&lt;/None&gt;</span>
+  <span style="color:#f92672">&lt;/ItemGroup&gt;</span></code></pre></div>
+<h2 id="summary">Summary</h2>
+
+<p>If you are creating a project with benchmarks using BenchmarkDotNet, you should include additional files as if you were creating a nuget package.</p>
+
+<p>If you think this post is useful, let me know in the comments below.</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/"><i class="fa fa-chevron-circle-left"></i> Analyzing native memory allocation with BenchmarkDotNet</a>
+        </li>
+        
+        
+    </ul>
+</section>
+    
+        <section class="comments-block">
+      <button id="show-comments" style="display: none;"><i class="fa fa-comments-o"></i> Add/View Comments</button>
+</section>
+
+<section id="disqus_thread"></section>
+
+<script>
+      (function () {
+            
+            
+            if (window.location.hostname == "localhost")
+                  return;
+
+            var disqus_loaded = false;
+            var disqus_shortname = 'wojciechnagorski';
+            var disqus_button = document.getElementById("show-comments");
+
+            disqus_button.style.display = "";
+            disqus_button.addEventListener("click", disqus, false);
+
+            function disqus() {
+
+                  if (!disqus_loaded) {
+                        disqus_loaded = true;
+
+                        var e = document.createElement("script");
+                        e.type = "text/javascript";
+                        e.async = true;
+                        e.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+                        (document.getElementsByTagName("head")[0] ||
+                              document.getElementsByTagName("body")[0])
+                        .appendChild(e);
+
+                        
+                        document.getElementById("show-comments").style.display = "none";
+                  }
+            }
+
+            
+            var hash = window.location.hash.substr(1);
+            if (hash.length > 8) {
+                  if (hash.substring(0, 8) == "comment-") {
+                        disqus();
+                  }
+            }
+
+            
+            if (/bot|google|baidu|bing|msn|duckduckgo|slurp|yandex/i.test(navigator.userAgent)) {
+                  disqus();
+            }
+      })();
+</script>
+    
+
+
+
+
+
+</main>
+    <footer>
+        <h6>&copy; 2018 Wojciech Nagórski |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
+            <a href="/index.xml">Subscribe</a></h6>
+    </footer>
+</div>
+<script src="/js/scripts.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-130630724-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+</body>
+
+</html>

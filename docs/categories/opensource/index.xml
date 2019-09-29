@@ -10,10 +10,106 @@
        <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
        <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
        <copyright>&amp;copy; 2018 Wojciech Nagórski</copyright>
-       <lastBuildDate>Thu, 08 Aug 2019 02:13:54 -0400</lastBuildDate>
+       <lastBuildDate>Mon, 30 Sep 2019 02:13:54 -0400</lastBuildDate>
        
            <atom:link href="/categories/opensource/index.xml" rel="self" type="application/rss+xml" />
        
+       
+       <item>
+         <title>Using native DLL and resource files in BenchmarkDotNet projects</title>
+         <link>/2019/09/using-native-dll-and-resource-files-in-benchmarkdotnet-projects/</link>
+         <pubDate>Mon, 30 Sep 2019 02:13:54 -0400</pubDate>
+         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+         <guid>/2019/09/using-native-dll-and-resource-files-in-benchmarkdotnet-projects/</guid>
+         <description>
+
+&lt;p&gt;In a previous &lt;a href=&#34;/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/&#34;&gt;post&lt;/a&gt;, I described the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; which I implemented in the &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; library. It caused that I got many questions about using native DLL files in benchmark projects. Many people want to use &lt;code&gt;post-build&lt;/code&gt; events but they do not work. There is an issue &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/946&#34;&gt;dotnet/BenchmarkDotNet#946&lt;/a&gt;. I know a better solution, so I decided to describe this topic.&lt;/p&gt;
+
+&lt;p&gt;In this post, I would like to show you, how to use native DLL or resource files in benchmark projects.&lt;/p&gt;
+
+&lt;p&gt;If you only need solution, you can navigate to the &lt;a href=&#34;#solution&#34;&gt;solution&lt;/a&gt; section, but if you would like to understand the problem you need to read the whole article.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-story&#34;&gt;The story&lt;/h2&gt;
+
+&lt;p&gt;When you run your benchmark project, the BenchmarkDotNet generates an isolated project that references to your project. This generated project is built and run, during each run of your benchmark. Let&amp;rsquo;s create a really simple benchmark project that shows us this mechanism.&lt;/p&gt;
+
+&lt;p&gt;In the beginning, we have to create a new project. I&amp;rsquo;m going to use &lt;a href=&#34;https://github.com/dotnet/cli&#34;&gt;dotnet CLI&lt;/a&gt;, so that you can follow the steps below on Windows, Linux or macOs.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;mkdir UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;cd UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet new console&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then we need to add the BenchmarkDotNet nuget to this project.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet add package BenchmarkDotNet&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;After configuring the project, we can implement our benchmark. Below is a &lt;code&gt;Program.cs&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; System;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Attributes;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Running;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; UsingResourcesWithBenchmarkDotNet
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Program&lt;/span&gt;
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Main(&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[]&lt;/span&gt; args) =&amp;gt;
+            BenchmarkSwitcher.FromAssembly(&lt;span style=&#34;color:#66d9ef&#34;&gt;typeof&lt;/span&gt;(Program).Assembly).Run(args);
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Benchmark&lt;/span&gt;
+    {&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark]&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Sum()
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; result = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;; i++)
+            {
+                result += i;
+            }
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; result;
+        }
+    }
+}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now we can run this project with a &lt;code&gt;--keepfiles&lt;/code&gt; option. If you add this option, all auto-generated files will be kept after running the benchmark.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -- --filter *Sum* --keepfiles&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now, &lt;code&gt;bin&lt;/code&gt; directory should contain all generated files. In our case, we were run only one benchmark so all files should be in &lt;code&gt;DefaultJob&lt;/code&gt; directory.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;λ cd bin\Release\netcoreapp3.0\DefaultJob&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;λ ls  # or dir for windows console&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Autogenerated.csproj  DefaultJob.bat  DefaultJob.notcs  bin/  obj/&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As you can see, BenchmarkDotNet generates a new project for us, called&lt;code&gt;BenchmarkDotNet.Autogenerated.csproj&lt;/code&gt;. For instance, when you want to run your benchmark for many frameworks, BenchmarkDotNet will generate many projects for you. Each generated project has its own &lt;code&gt;bin&lt;/code&gt; directory and is run from this location.&lt;/p&gt;
+
+&lt;p&gt;Since BenchmarkDotNet does not run benchmarks from default &lt;code&gt;bin&lt;/code&gt; directory, you can not use any recourses from there. Therefore, &lt;code&gt;post-build&lt;/code&gt; events do not work because they are running during building the benchmark project, not auto-generated projects.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;The solution is really simple. Instead of &lt;code&gt;post-build&lt;/code&gt; events, you should use &lt;a href=&#34;https://docs.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items?view=vs-2019#none&#34;&gt;None or Compile project item&lt;/a&gt;. Below you can see an example of copying &lt;code&gt;NativeDll.dll&lt;/code&gt; from &lt;code&gt;solutionDir\x64\Release&lt;/code&gt; directory into &lt;code&gt;bin&lt;/code&gt; directory of the benchmark project, as well as into &lt;code&gt;bin&lt;/code&gt; directories of all auto-generated projects that refer to the benchmark project. If you set &lt;code&gt;Visible&lt;/code&gt; to true, then the file will be visible in the solution explorer.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\x64\$(Configuration)\NativeDll.dll&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;NativeDll.dll&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;What&amp;rsquo;s more, you do not have to add file by file. You can also copy the entire directory using this method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\Resources\**\*.*&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can also copy all files of a given type, for example, all DLL files from a directory:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\Resources\**\*.dll&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;If you are creating a project with benchmarks using BenchmarkDotNet, you should include additional files as if you were creating a nuget package.&lt;/p&gt;
+
+&lt;p&gt;If you think this post is useful, let me know in the comments below.&lt;/p&gt;
+</description>
+       </item>
        
        <item>
          <title>Analyzing native memory allocation with BenchmarkDotNet</title>
