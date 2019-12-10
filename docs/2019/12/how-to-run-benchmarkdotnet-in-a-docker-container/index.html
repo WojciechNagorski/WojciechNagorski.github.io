@@ -1,0 +1,440 @@
+<!doctype html>
+
+<html lang="en-us">
+
+<head>
+  <title>Wojciech Nagórski</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="In this post I would like to show how to run BenchmarkDotNet in a Docker container." />
+  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.51" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  <link rel="stylesheet" type="text/css" href="/css/styles.css" /><link rel='stylesheet' href='/css/custom.css'></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="/">Wojciech Nagórski</a>
+            </h1>
+
+      <ul id="social-media">
+        
+        <li><a href="https://twitter.com/WojtekNagorski"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+         
+        <li><a href="https://www.linkedin.com/in/wojciech-nag%c3%b3rski-a3420493"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+         
+        <li><a href="https://github.com/wojtpl2"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
+            
+        <li><a href="mailto:wojtpl2@gmail.com"><i class="fas fa-at fa-lg" aria-hidden="true"></i></a></li>
+        
+        <li><a href="/index.xml"><i class="fas fa-rss fa-lg" aria-hidden="true"></i></a></li>
+      </ul>
+      
+      <p><em>What I have done in .NET world.</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/categories">
+                <i class="fa-li fa  fa-lg"></i><span>Categories</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/tags">
+                <i class="fa-li fa  fa-lg"></i><span>Tags</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>How to run BenchmarkDotNet in a Docker container</h1>
+
+    
+        <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2019-12-10T02:13:54-04:00">Dec 10, 2019</time>
+        </li>
+        
+        
+        <li>
+            Categories: 
+            <em>
+                
+                    
+                    <a href="/categories/opensource/">OpenSource</a>
+                
+                    , 
+                    <a href="/categories/benchmarkdotnet/">BenchmarkDotNet</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="/tags/benchmarkdotnet/">#BenchmarkDotNet</a>
+                
+                    , 
+                    <a href="/tags/docker/">#Docker</a>
+                
+            </em>
+        </li>
+        
+
+        <li>8 min read</li>
+    </ul>
+</aside>
+    
+
+    
+
+<p>The BenchmarkDotNet library is great for creating bencharks that can be run on a local machine in a very simple way. But what if you wanted to run them in a Docker container with a different operating system or using a different version of .Net Core. In this post I would like to show you how to dockerize your benchmarks.</p>
+
+<p>Firstly, a new solution and a project need to be created. To do this, follow the instructions below.
+I will be using .NET Core CLI, because it works on most systems.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#75715e"># 1. create new &#34;BenchmarkDotNetInDocker.sln&#34; inside the “BenchmarkDotNetInDocker” directory.  </span>
+<span style="color:#a6e22e">dotnet new sln --name BenchmarkDotNetInDocker --output BenchmarkDotNetInDocker </span>
+
+<span style="color:#75715e"># 2. navigate to the previously created directory.  </span>
+<span style="color:#a6e22e">cd BenchmarkDotNetInDocker </span>
+
+<span style="color:#75715e"># 3. create a new console project with the name of “BenchmarkDotNetInDocker”. </span>
+<span style="color:#a6e22e">dotnet new console --name BenchmarkDotNetInDocker </span>
+
+<span style="color:#75715e"># 4. add the previously created project to the sln file. </span>
+<span style="color:#a6e22e">dotnet sln add .\BenchmarkDotNetInDocker\BenchmarkDotNetInDocker.csproj </span>
+
+<span style="color:#75715e"># 5. add the BenchmarkDotNet nuget package to our project. </span>
+<span style="color:#a6e22e">dotnet add .\BenchmarkDotNetInDocker\BenchmarkDotNetInDocker.csproj package BenchmarkDotNet </span>
+
+<span style="color:#75715e"># 6. restore nuget packages </span>
+<span style="color:#a6e22e">dotnet restore </span></code></pre></div>
+<p>Now our project is ready to add the first benchmark, but before we do it, we need to change the <code>Program.cs</code> file, as shown below. This code uses the <code>BenchmarkSwitcher</code> class which allows us to choose a benchmark to run during the execution.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#66d9ef">using</span> System;
+<span style="color:#66d9ef">using</span> BenchmarkDotNet.Attributes;
+<span style="color:#66d9ef">using</span> BenchmarkDotNet.Running;
+
+<span style="color:#66d9ef">namespace</span> BenchmarkDotNetInDocker
+{
+    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Program</span>
+    {
+        <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> Main(<span style="color:#66d9ef">string</span><span style="color:#a6e22e">[]</span> args)
+        {
+            BenchmarkSwitcher.FromAssembly(<span style="color:#66d9ef">typeof</span>(Program).Assembly).Run(args);
+        }
+    }
+}</code></pre></div>
+<p>Then we need to create a new <code>.cs</code> file, e. g. <code>MyBenchmark.cs</code> that will contain the benchmark. As you can see below, the <code>MyBenchmark</code> class contains the <code>Sum</code> method which is marked with the <code>[Benchmark]</code> attribute. And that&rsquo;s all.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#">    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyBenchmark</span>
+    {<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">        [Benchmark]</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> Sum()
+        {
+            <span style="color:#66d9ef">int</span> result = <span style="color:#ae81ff">0</span>;
+            <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i = <span style="color:#ae81ff">0</span>; i &lt; <span style="color:#ae81ff">100</span>; i++)
+            {
+                result += i;
+            }
+
+            <span style="color:#66d9ef">return</span> result;
+        }
+    }</code></pre></div>
+<p>Now we can run our project. If you are inside the project directory, just run:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release -- --filter *Sum*</span></code></pre></div>
+<p>If you are in the root directory, where the <code>sln</code> file is located, you should indicate which project you want to run:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release -p .\BenchmarkDotNetInDocker\BenchmarkDotNetInDocker.csproj -- --filter *Sum*</span></code></pre></div>
+<p>The <code>--filter *Sum*</code> parameter specifies which benchmarks should be run. In this particular case, we want to run all benchmarks that contain <code>Sum</code> inside their names.</p>
+
+<p>Having run this command, your benchmark will start. When it finishes, you will see the summary:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[...]</span>
+<span style="color:#a6e22e">// * Summary *</span>
+
+<span style="color:#a6e22e">BenchmarkDotNet</span><span style="color:#f92672">=</span><span style="color:#e6db74">v0.12.0, OS=Windows 10.0.16299.1387 (1709/FallCreatorsUpdate/Redstone3)</span>
+<span style="color:#a6e22e">Intel Core i7-4770 CPU 3.40GHz (Haswell), 1 CPU, 8 logical and 4 physical cores</span>
+<span style="color:#a6e22e">Frequency</span><span style="color:#f92672">=</span><span style="color:#e6db74">3312641 Hz, Resolution=301.8739 ns, Timer=TSC</span>
+<span style="color:#a6e22e">.NET Core SDK</span><span style="color:#f92672">=</span><span style="color:#e6db74">3.0.100
+</span><span style="color:#e6db74">  [Host]     : .NET Core 3.0.0 (CoreCLR 4.700.19.46205, CoreFX 4.700.19.46214), X64 RyuJIT
+</span><span style="color:#e6db74">  DefaultJob : .NET Core 3.0.0 (CoreCLR 4.700.19.46205, CoreFX 4.700.19.46214), X64 RyuJIT</span>
+
+
+<span style="color:#a6e22e">| Method |     Mean |    Error |   StdDev |</span>
+<span style="color:#a6e22e">|------- |---------:|---------:|---------:|</span>
+<span style="color:#a6e22e">|    Sum | 33.10 ns | 0.142 ns | 0.126 ns |</span>
+<span style="color:#66d9ef">[...]</span></code></pre></div>
+<p>Please note that the summary includes information about the operating system, in my case, it was <code>Windows 10.0.16299.1387 (1709/FallCreatorsUpdate/Redstone3)</code>.</p>
+
+<h2 id="running-benchmarkdotnet-in-a-docker-container">Running BenchmarkDotNet in a Docker container</h2>
+
+<p>Now we have to add two additional files in the root directory, where the <code>sln</code> file is located. The first one will be a text document called <code>Dockerfile</code> and will contain all the commands to assemble a docker image. You can see my <code>Dockerfile</code> here:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">FROM mcr.microsoft.com/dotnet/core/sdk:3.1</span>
+<span style="color:#a6e22e">WORKDIR /src</span>
+<span style="color:#a6e22e">COPY . .</span>
+<span style="color:#a6e22e">RUN dotnet restore</span>
+
+<span style="color:#a6e22e">RUN dotnet build &#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&#34; -c Release -o /src/bin</span>
+<span style="color:#a6e22e">RUN dotnet publish &#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&#34; -c Release -o /app</span>
+
+<span style="color:#a6e22e">WORKDIR /app</span>
+<span style="color:#a6e22e">ENTRYPOINT [&#34;dotnet&#34;, &#34;BenchmarkDotNetInDocker.dll&#34;]</span></code></pre></div>
+<p>The following is a description of <code>Dockerfile</code>, line by line:</p>
+
+<ul>
+<li><code>FROM mcr.microsoft.com/dotnet/core/sdk:3.1</code> - this line means that an image with .NET Core SDK 3.1 will be used. We should use the SDK version and not a Runtime one because BencharkDotNet generates, builds and runs the benchmarked projects. The full list of available images can be found on <a href="https://hub.docker.com/_/microsoft-dotnet-core-sdk/">Docker Hub</a>.</li>
+<li><code>WORKDIR /src</code> - sets the working direcory to <code>/src</code></li>
+<li><code>COPY . .</code> - Copies all files except ignored ones into the container.</li>
+<li><code>RUN dotnet restore</code> - restores the dependencies and tools of the project.</li>
+<li><code>RUN dotnet build &quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&quot; -c Release -o /src/bin</code> - builds the project in the <code>Release</code> mode into the <code>/src/bin</code> directory.</li>
+<li><code>RUN dotnet publish &quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&quot; -c Release -o /app</code> - publishs the project in the <code>Release</code> mode into the <code>/app</code> location.</li>
+<li><code>WORKDIR /app</code> - sets the working direcory to <code>/app</code> where you can find the published application.</li>
+<li><code>ENTRYPOINT [&quot;dotnet&quot;, &quot;BenchmarkDotNetInDocker.dll&quot;]</code> - allows you to configure a container entrypoint. In this case it is the <code>dotnet BenchmarkDotNetInDocker.dll</code> command.</li>
+</ul>
+
+<p>The second file will be the <code>.dockerignore</code> file that will allow you to exclude files from the docker image like a <code>.gitignore</code> file allow you to exclude files from your git repository.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#75715e"># .dockerignore</span>
+
+<span style="color:#a6e22e">Dockerfile</span>
+<span style="color:#a6e22e">[b|B]in</span>
+<span style="color:#a6e22e">[O|o]bj</span></code></pre></div>
+<p>Now we can build our new docker image using the following command. We use the <code>-t</code> parameter to name the image, in this case <code>benchmarkdotnet</code>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker build -t benchmarkdotnet .</span></code></pre></div>
+<p>Having created the docker image with our project, we can run it using command:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker run -it benchmarkdotnet --filter *Sum* </span></code></pre></div>
+<p>You should see the output log that contains information about the operating system, in this case it is <code>OS=debian 10</code>, and information about the .NET Core version, here - <code>3.1.0</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">// * Summary *</span>
+
+<span style="color:#a6e22e">BenchmarkDotNet</span><span style="color:#f92672">=</span><span style="color:#e6db74">v0.12.0, OS=debian 10</span>
+<span style="color:#a6e22e">Intel Core i7-4770 CPU 3.40GHz (Haswell), 1 CPU, 2 logical and 2 physical cores</span>
+<span style="color:#a6e22e">.NET Core SDK</span><span style="color:#f92672">=</span><span style="color:#e6db74">3.1.100
+</span><span style="color:#e6db74">  [Host]     : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT
+</span><span style="color:#e6db74">  DefaultJob : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT</span>
+
+
+<span style="color:#a6e22e">| Method |     Mean |    Error |   StdDev |</span>
+<span style="color:#a6e22e">|------- |---------:|---------:|---------:|</span>
+<span style="color:#a6e22e">|    Sum | 32.65 ns | 0.154 ns | 0.137 ns |</span></code></pre></div>
+<p>All parameters following the name of the docker image go directly to our application. In this case the <code>--filter *Sum*</code> parameter goes to our <code>Program.Main(args)</code> method and then to the <code>BenchmarkSwitcher</code> class which I mentioned earlier. Similarly, we can add additional parameters, such as <code>--memory</code> that enables <code>MemoryDiagnoser</code> and prints memory statistics.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker run -it benchmarkdotnet --filter *Sum* --memory</span></code></pre></div>
+<p>The command above runs our benchmark inside a Docker container and adds additional columns: &ldquo;Gen 0&rdquo;, &ldquo;Gen 1&rdquo;, &ldquo;Gen 2&rdquo;, and &ldquo;Allocated&rdquo;.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">| Method |     Mean |    Error |   StdDev | Gen 0 | Gen 1 | Gen 2 | Allocated |</span>
+<span style="color:#a6e22e">|------- |---------:|---------:|---------:|------:|------:|------:|----------:|</span>
+<span style="color:#a6e22e">|    Sum | 34.35 ns | 0.334 ns | 0.296 ns |     - |     - |     - |         - |</span></code></pre></div>
+<p>You can also print all the available benchmarks, using either of the following parameters: <code>--list tree</code> and <code>--list flat</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker run -it benchmarkdotnet --list tree</span></code></pre></div>
+<p>The following output will be printed when the above command has been finished:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">BenchmarkDotNetInDocker</span>
+ <span style="color:#a6e22e">└─Benchmark</span>
+    <span style="color:#a6e22e">└─Sum</span></code></pre></div>
+<h2 id="where-are-the-artifacts">Where are the artifacts?</h2>
+
+<p>We are currently able to run any benchmark with any set of options. But where are the resulting files? The answer is simple, they are inside the docker container. There are methods of getting them out of the container, but a better approach is to generate them directly into a local directory. For this purpose, we will use the docker volumes. All we have to do is to add the <code>-v local-path:container-path</code> parameter, as shown below:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/app/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m</span></code></pre></div>
+<p>After excecution finishes, all artifacts should be in the <code>c:\BenchmarkDotNet.ArtifactsFromDocker</code> directory.</p>
+
+<h2 id="run-benchmarks-on-different-linux-distributions-or-different-net-core-versions">Run benchmarks on different Linux distributions or different .NET Core versions</h2>
+
+<p>In Dockerfile above we used the <code>FROM mcr.microsoft.com/dotnet/core/sdk:3.1</code> instruction which gave us Debian 10 with .NET Core 3.1. But what if we wanted to change the operating system or the .NET Core version?</p>
+
+<p>The <code>FROM</code> instruction has the syntax of: <code>FROM &lt;image&gt;[:&lt;tag&gt;]</code>. Therefore, in this particular case we used the <code>mcr.microsoft.com/dotnet/core/sdk</code> image and the <code>3.1</code> tag. The tag determined the .NET Core version. So if you want use .NET Core 2.2, just use the <code>2.2</code> tag instead. Using different tag suffixes, you can also change the operating system. The following table contains example tags for different operating systems.</p>
+
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th>OS Version</th>
+<th>.NET Core Version</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>3.1 or 3.1-buster</td>
+<td>Debian 10</td>
+<td>.NET Core 3.1</td>
+</tr>
+
+<tr>
+<td>3.1-alpine</td>
+<td>Alpine 3.10</td>
+<td>.NET Core 3.1</td>
+</tr>
+
+<tr>
+<td>3.1-bionic</td>
+<td>Ubuntu 18.04</td>
+<td>.NET Core 3.1</td>
+</tr>
+
+<tr>
+<td>2.2 or 2.2-stretch</td>
+<td>Debian 9</td>
+<td>.NET Core 2.2</td>
+</tr>
+
+<tr>
+<td>2.2-alpine</td>
+<td>Alpine 3.9</td>
+<td>.NET Core 2.2</td>
+</tr>
+
+<tr>
+<td>2.2-bionic</td>
+<td>Ubuntu 18.04</td>
+<td>.NET Core 2.2</td>
+</tr>
+
+<tr>
+<td>&hellip;</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<p>All possible tags can be found on <a href="https://hub.docker.com/_/microsoft-dotnet-core-sdk/">Docker Hub</a>.</p>
+
+<p>Of course, .NET Core can be run on other Linux distributions for which Microsoft does not publish official docker images. But this topic is outside of this article’s scope. If you find it problematic, please let me know in the comments below, and I will consider writing a post with some additional information on the topic.</p>
+
+<h2 id="additional-information">Additional information</h2>
+
+<p>When you run the benchmark project in Docker, you should get a message:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">Failed to set up high priority. Make sure you have the right permissions. Message: Permission denied</span></code></pre></div>
+<p>It means that BenchmarkDotNet requires additional permissions. Fortunately, you can use a “privileged” container.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker run --privileged -it benchmarkdotnet --filter *Sum*</span></code></pre></div>
+<p>You can find the full description of this mode in the Docker <a href="https://docs.docker.com/engine/reference/run/">documentation</a>. It states that:</p>
+
+<p><em>Docker will enable access to all devices on the host as well as set some configuration in AppArmor or SELinux to allow the container nearly all the same access to the host as processes running outside containers on the host.</em></p>
+
+<h2 id="limitations">Limitations</h2>
+
+<p>This method should be used exclusively for development purposes, unless your production environment clearly requires the application to run within docker. You should always carry out final performance tests in the production environment.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>In this article, I have shown how to run BenchmarkDotNet inside a Docker container. With this information you can benchmark your code for different systems and different versions of .NET Core easily.</p>
+
+<p>As I am going to write about profiling applications on Linux using BenchmarkDotNet as soon as I implement the <code>EventPipeProfiler</code> functionality, this post will come in handy in the nearest future&hellip; I hope. And you will be able to profile your benchmark inside a Docker container too. If you are already curious about how the profiling is going to function, you can follow PR <a href="PR.https://github.com/dotnet/BenchmarkDotNet/pull/1321/">dotnet/BenchmarkDotNet#1321</a>.</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="/2019/09/using-native-dll-and-resource-files-in-benchmarkdotnet-projects/"><i class="fa fa-chevron-circle-left"></i> Using native DLL and resource files in BenchmarkDotNet projects</a>
+        </li>
+        
+        
+    </ul>
+</section>
+    
+        <section class="comments-block">
+      <button id="show-comments" style="display: none;"><i class="fa fa-comments-o"></i> Add/View Comments</button>
+</section>
+
+<section id="disqus_thread"></section>
+
+<script>
+      (function () {
+            
+            
+            if (window.location.hostname == "localhost")
+                  return;
+
+            var disqus_loaded = false;
+            var disqus_shortname = 'wojciechnagorski';
+            var disqus_button = document.getElementById("show-comments");
+
+            disqus_button.style.display = "";
+            disqus_button.addEventListener("click", disqus, false);
+
+            function disqus() {
+
+                  if (!disqus_loaded) {
+                        disqus_loaded = true;
+
+                        var e = document.createElement("script");
+                        e.type = "text/javascript";
+                        e.async = true;
+                        e.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+                        (document.getElementsByTagName("head")[0] ||
+                              document.getElementsByTagName("body")[0])
+                        .appendChild(e);
+
+                        
+                        document.getElementById("show-comments").style.display = "none";
+                  }
+            }
+
+            
+            var hash = window.location.hash.substr(1);
+            if (hash.length > 8) {
+                  if (hash.substring(0, 8) == "comment-") {
+                        disqus();
+                  }
+            }
+
+            
+            if (/bot|google|baidu|bing|msn|duckduckgo|slurp|yandex/i.test(navigator.userAgent)) {
+                  disqus();
+            }
+      })();
+</script>
+    
+
+
+
+
+
+</main>
+    <footer>
+        <h6>&copy; 2018 Wojciech Nagórski |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
+            <a href="/index.xml">Subscribe</a></h6>
+    </footer>
+</div>
+<script src="/js/scripts.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-130630724-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+</body>
+
+</html>
