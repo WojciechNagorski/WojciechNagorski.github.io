@@ -44,7 +44,7 @@
          <guid>/2019/12/how-to-run-benchmarkdotnet-in-a-docker-container/</guid>
          <description>
 
-&lt;p&gt;The BenchmarkDotNet library is great for creating bencharks that can be run on a local machine in a very simple way. But what if you wanted to run them in a Docker container with a different operating system or using a different version of .Net Core. In this post I would like to show you how to dockerize your benchmarks.&lt;/p&gt;
+&lt;p&gt;The BenchmarkDotNet library is great for creating benchmarks that can be run on a local machine in a very simple way. But what if you wanted to run them in a Docker container with a different operating system or using a different version of .Net Core. In this post I would like to show you how to dockerize your benchmarks.&lt;/p&gt;
 
 &lt;p&gt;Firstly, a new solution and a project need to be created. To do this, follow the instructions below.
 I will be using .NET Core CLI, because it works on most systems.&lt;/p&gt;
