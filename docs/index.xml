@@ -128,9 +128,9 @@ I will be using .NET Core CLI, because it works on most systems.&lt;/p&gt;
 &lt;span style=&#34;color:#a6e22e&#34;&gt;RUN dotnet restore&lt;/span&gt;
 
 &lt;span style=&#34;color:#a6e22e&#34;&gt;RUN dotnet build &amp;#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;#34; -c Release -o /src/bin&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;RUN dotnet publish &amp;#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;#34; -c Release -o /app&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;RUN dotnet publish &amp;#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;#34; -c Release -o /src/bin/publish&lt;/span&gt;
 
-&lt;span style=&#34;color:#a6e22e&#34;&gt;WORKDIR /app&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;WORKDIR /src/bin/publish&lt;/span&gt;
 &lt;span style=&#34;color:#a6e22e&#34;&gt;ENTRYPOINT [&amp;#34;dotnet&amp;#34;, &amp;#34;BenchmarkDotNetInDocker.dll&amp;#34;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The following is a description of &lt;code&gt;Dockerfile&lt;/code&gt;, line by line:&lt;/p&gt;
 
@@ -140,8 +140,8 @@ I will be using .NET Core CLI, because it works on most systems.&lt;/p&gt;
 &lt;li&gt;&lt;code&gt;COPY . .&lt;/code&gt; - Copies all files except ignored ones into the container.&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;RUN dotnet restore&lt;/code&gt; - restores the dependencies and tools of the project.&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;RUN dotnet build &amp;quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;quot; -c Release -o /src/bin&lt;/code&gt; - builds the project in the &lt;code&gt;Release&lt;/code&gt; mode into the &lt;code&gt;/src/bin&lt;/code&gt; directory.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;RUN dotnet publish &amp;quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;quot; -c Release -o /app&lt;/code&gt; - publishs the project in the &lt;code&gt;Release&lt;/code&gt; mode into the &lt;code&gt;/app&lt;/code&gt; location.&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;WORKDIR /app&lt;/code&gt; - sets the working direcory to &lt;code&gt;/app&lt;/code&gt; where you can find the published application.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RUN dotnet publish &amp;quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;quot; -c Release -o /src/bin/publish&lt;/code&gt; - publishs the project in the &lt;code&gt;Release&lt;/code&gt; mode into the &lt;code&gt;/src/bin/publish&lt;/code&gt; location.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;WORKDIR /src/bin/publish&lt;/code&gt; - sets the working direcory to &lt;code&gt;/src/bin/publish&lt;/code&gt; where you can find the published application.&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;ENTRYPOINT [&amp;quot;dotnet&amp;quot;, &amp;quot;BenchmarkDotNetInDocker.dll&amp;quot;]&lt;/code&gt; - allows you to configure a container entrypoint. In this case it is the &lt;code&gt;dotnet BenchmarkDotNetInDocker.dll&lt;/code&gt; command.&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -183,7 +183,7 @@ I will be using .NET Core CLI, because it works on most systems.&lt;/p&gt;
 &lt;h2 id=&#34;where-are-the-artifacts&#34;&gt;Where are the artifacts?&lt;/h2&gt;
 
 &lt;p&gt;We are currently able to run any benchmark with any set of options. But where are the resulting files? The answer is simple, they are inside the docker container. There are methods of getting them out of the container, but a better approach is to generate them directly into a local directory. For this purpose, we will use the docker volumes. All we have to do is to add the &lt;code&gt;-v local-path:container-path&lt;/code&gt; parameter, as shown below:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/app/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/src/bin/publish/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;After excecution finishes, all artifacts should be in the &lt;code&gt;c:\BenchmarkDotNet.ArtifactsFromDocker&lt;/code&gt; directory.&lt;/p&gt;
 
 &lt;h2 id=&#34;run-benchmarks-on-different-linux-distributions-or-different-net-core-versions&#34;&gt;Run benchmarks on different Linux distributions or different .NET Core versions&lt;/h2&gt;

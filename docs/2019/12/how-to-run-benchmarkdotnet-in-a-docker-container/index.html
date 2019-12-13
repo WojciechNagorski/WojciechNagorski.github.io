@@ -198,9 +198,9 @@ I will be using .NET Core CLI, because it works on most systems.</p>
 <span style="color:#a6e22e">RUN dotnet restore</span>
 
 <span style="color:#a6e22e">RUN dotnet build &#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&#34; -c Release -o /src/bin</span>
-<span style="color:#a6e22e">RUN dotnet publish &#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&#34; -c Release -o /app</span>
+<span style="color:#a6e22e">RUN dotnet publish &#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&#34; -c Release -o /src/bin/publish</span>
 
-<span style="color:#a6e22e">WORKDIR /app</span>
+<span style="color:#a6e22e">WORKDIR /src/bin/publish</span>
 <span style="color:#a6e22e">ENTRYPOINT [&#34;dotnet&#34;, &#34;BenchmarkDotNetInDocker.dll&#34;]</span></code></pre></div>
 <p>The following is a description of <code>Dockerfile</code>, line by line:</p>
 
@@ -210,8 +210,8 @@ I will be using .NET Core CLI, because it works on most systems.</p>
 <li><code>COPY . .</code> - Copies all files except ignored ones into the container.</li>
 <li><code>RUN dotnet restore</code> - restores the dependencies and tools of the project.</li>
 <li><code>RUN dotnet build &quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&quot; -c Release -o /src/bin</code> - builds the project in the <code>Release</code> mode into the <code>/src/bin</code> directory.</li>
-<li><code>RUN dotnet publish &quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&quot; -c Release -o /app</code> - publishs the project in the <code>Release</code> mode into the <code>/app</code> location.</li>
-<li><code>WORKDIR /app</code> - sets the working direcory to <code>/app</code> where you can find the published application.</li>
+<li><code>RUN dotnet publish &quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&quot; -c Release -o /src/bin/publish</code> - publishs the project in the <code>Release</code> mode into the <code>/src/bin/publish</code> location.</li>
+<li><code>WORKDIR /src/bin/publish</code> - sets the working direcory to <code>/src/bin/publish</code> where you can find the published application.</li>
 <li><code>ENTRYPOINT [&quot;dotnet&quot;, &quot;BenchmarkDotNetInDocker.dll&quot;]</code> - allows you to configure a container entrypoint. In this case it is the <code>dotnet BenchmarkDotNetInDocker.dll</code> command.</li>
 </ul>
 
@@ -253,7 +253,7 @@ I will be using .NET Core CLI, because it works on most systems.</p>
 <h2 id="where-are-the-artifacts">Where are the artifacts?</h2>
 
 <p>We are currently able to run any benchmark with any set of options. But where are the resulting files? The answer is simple, they are inside the docker container. There are methods of getting them out of the container, but a better approach is to generate them directly into a local directory. For this purpose, we will use the docker volumes. All we have to do is to add the <code>-v local-path:container-path</code> parameter, as shown below:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/app/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m</span></code></pre></div>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/src/bin/publish/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m</span></code></pre></div>
 <p>After excecution finishes, all artifacts should be in the <code>c:\BenchmarkDotNet.ArtifactsFromDocker</code> directory.</p>
 
 <h2 id="run-benchmarks-on-different-linux-distributions-or-different-net-core-versions">Run benchmarks on different Linux distributions or different .NET Core versions</h2>

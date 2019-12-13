@@ -117,9 +117,9 @@ COPY . .
 RUN dotnet restore
 
 RUN dotnet build "BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj" -c Release -o /src/bin
-RUN dotnet publish "BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj" -c Release -o /app
+RUN dotnet publish "BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj" -c Release -o /src/bin/publish
 
-WORKDIR /app
+WORKDIR /src/bin/publish
 ENTRYPOINT ["dotnet", "BenchmarkDotNetInDocker.dll"]
 ```
 The following is a description of `Dockerfile`, line by line:
@@ -129,8 +129,8 @@ The following is a description of `Dockerfile`, line by line:
 - `COPY . .` - Copies all files except ignored ones into the container.
 - `RUN dotnet restore` - restores the dependencies and tools of the project.
 - `RUN dotnet build "BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj" -c Release -o /src/bin` - builds the project in the `Release` mode into the `/src/bin` directory.
-- `RUN dotnet publish "BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj" -c Release -o /app` - publishs the project in the `Release` mode into the `/app` location.
-- `WORKDIR /app` - sets the working direcory to `/app` where you can find the published application.
+- `RUN dotnet publish "BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj" -c Release -o /src/bin/publish` - publishs the project in the `Release` mode into the `/src/bin/publish` location.
+- `WORKDIR /src/bin/publish` - sets the working direcory to `/src/bin/publish` where you can find the published application.
 - `ENTRYPOINT ["dotnet", "BenchmarkDotNetInDocker.dll"]` - allows you to configure a container entrypoint. In this case it is the `dotnet BenchmarkDotNetInDocker.dll` command.
  
 The second file will be the `.dockerignore` file that will allow you to exclude files from the docker image like a `.gitignore` file allow you to exclude files from your git repository. 
@@ -204,7 +204,7 @@ BenchmarkDotNetInDocker
 We are currently able to run any benchmark with any set of options. But where are the resulting files? The answer is simple, they are inside the docker container. There are methods of getting them out of the container, but a better approach is to generate them directly into a local directory. For this purpose, we will use the docker volumes. All we have to do is to add the `-v local-path:container-path` parameter, as shown below:
 
 ```ini
-docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/app/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m
+docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/src/bin/publish/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m
 ```
 
 After excecution finishes, all artifacts should be in the `c:\BenchmarkDotNet.ArtifactsFromDocker` directory.
