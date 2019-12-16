@@ -42,13 +42,13 @@
   </url>
   
   <url>
-    <loc>/tags/benchmarkdotnet/</loc>
+    <loc>/categories/benchmarkdotnet/</loc>
     <lastmod>2019-12-10T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/categories/benchmarkdotnet/</loc>
+    <loc>/tags/benchmarkdotnet/</loc>
     <lastmod>2019-12-10T02:13:54-04:00</lastmod>
     <priority>0</priority>
   </url>
@@ -119,13 +119,13 @@
   </url>
   
   <url>
-    <loc>/tags/yamldotnet/</loc>
+    <loc>/categories/yamldotnet/</loc>
     <lastmod>2018-12-18T02:11:01-01:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/categories/yamldotnet/</loc>
+    <loc>/tags/yamldotnet/</loc>
     <lastmod>2018-12-18T02:11:01-01:00</lastmod>
     <priority>0</priority>
   </url>
