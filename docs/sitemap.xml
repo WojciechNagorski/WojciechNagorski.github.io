@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
@@ -7,63 +7,8 @@
   </url>
   
   <url>
-    <loc>/authors/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/categories/benchmarkdotnet/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/benchmarkdotnet/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/categories/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/docker/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/2019/12/how-to-run-benchmarkdotnet-in-a-docker-container/</loc>
     <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/categories/opensource/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/posts/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/authors/wojciech-nag%C3%B3rski/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/</loc>
-    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/nativememory/</loc>
-    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
   </url>
   
   <url>
@@ -77,11 +22,6 @@
   </url>
   
   <url>
-    <loc>/tags/disassembly/</loc>
-    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/2019/01/generate-disassembly-of-.net-functions/</loc>
     <lastmod>2019-01-28T02:13:54-04:00</lastmod>
   </url>
@@ -92,27 +32,102 @@
   </url>
   
   <url>
-    <loc>/tags/yamldotnet/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/categories/yamldotnet/</loc>
-    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/2018/12/first-pull-request-in-open-source/</loc>
     <lastmod>2018-12-11T11:16:00-04:00</lastmod>
   </url>
   
   <url>
+    <loc>/authors/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/benchmarkdotnet/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/benchmarkdotnet/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/disassembly/</loc>
+    <lastmod>2019-01-28T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/docker/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/tags/firstpullrequest/</loc>
     <lastmod>2018-12-11T11:16:00-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/nativememory/</loc>
+    <lastmod>2019-09-30T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/opensource/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/posts/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
     <loc>/series/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/authors/wojciech-nag%C3%B3rski/</loc>
+    <lastmod>2019-12-10T02:13:54-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/yamldotnet/</loc>
+    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/yamldotnet/</loc>
+    <lastmod>2018-12-18T02:11:01-01:00</lastmod>
+    <priority>0</priority>
   </url>
   
 </urlset>

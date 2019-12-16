@@ -7,7 +7,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="How to analyze native memory allocation with BenchmarkDotNet." />
-  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.60.1" />
+  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.51" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
@@ -112,36 +112,44 @@
 </aside>
     
 
-    <p>The <strong><code>NativeMemoryProfiler</code></strong> is a new diagnoser for <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a> that I implemented in version 0.12.0. In this post, you will learn how to analyze native memory allocations in your code. It sounds like a difficult topic, but trust me, you can do it really easily with BenchmarkDotNet.</p>
+    
+
+<p>The <strong><code>NativeMemoryProfiler</code></strong> is a new diagnoser for <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a> that I implemented in version 0.12.0. In this post, you will learn how to analyze native memory allocations in your code. It sounds like a difficult topic, but trust me, you can do it really easily with BenchmarkDotNet.</p>
+
 <h2 id="the-story">The story</h2>
+
 <p>Not so long ago, I got a task that was difficult for me. To be honest, I did not know where to start. I like this kind of tasks because they are a challenge and a good opportunity to learn something new. I had to create an application to validate native DLLs that were created by other companies. This application should call all functions, check how long it takes to execute all functions and check if functions do not allocate native memory. The last thing was the hardest for me.</p>
+
 <p>I thought I would find a solution in some open source project. I started from BenchmarkDotNet which is my favorite .NET library for benchmarking. To my surprise, it turned out that BenchmarkDotNet did not support tracking native allocations. I even found an issue <a href="https://github.com/dotnet/BenchmarkDotNet/issues/457">dotnet/BenchmarkDotNet#457</a> that had labels: <code>help wanted</code> and <code>up-for-grabs</code>. Luckily in this issue, I found information that <a href="https://github.com/kayle">@kayle</a> added support for tracking type of native memory allocations in <a href="https://github.com/microsoft/perfview">PerfView</a>. Here is his PR <a href="https://github.com/microsoft/perfview/pull/857">microsoft/perfview#857</a>. Thanks to it, I had all the information to solve my problem but also I was able to make <code>NativeMemoryProfiler</code> for BenchmarkDotNet. So I did it.</p>
+
 <h2 id="demo">Demo</h2>
+
 <p>Bellow is a sample benchmark which uses the <code>Marshal.AllocHGlobal</code> and <code>Marshal.FreeHGlobal</code> methods to allocate and free native memory.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">[ShortRunJob]</span>
-<span style="color:#a6e22e">[NativeMemoryProfiler]</span> <span style="color:#75715e">// &lt;-- This attribute enables the profiler for native allocation.
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">[ShortRunJob]
+</span><span style="color:#a6e22e">[NativeMemoryProfiler]</span> <span style="color:#75715e">// &lt;-- This attribute enables the profiler for native allocation.
 </span><span style="color:#75715e"></span><span style="color:#a6e22e">[MemoryDiagnoser]</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IntroNativeMemory</span>
 {
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> Size = <span style="color:#ae81ff">2</span><span style="color:#ae81ff">0</span>; <span style="color:#75715e">// Greater value could cause System.OutOfMemoryException for a test with memory leaks.
-</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> ArraySize = Size * Marshal.SizeOf(<span style="color:#66d9ef">typeof</span>(<span style="color:#66d9ef">int</span>));
-<span style="color:#a6e22e">
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> Size = <span style="color:#ae81ff">20</span>; <span style="color:#75715e">// Greater value could cause System.OutOfMemoryException for a test with memory leaks.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> ArraySize = Size * Marshal.SizeOf(<span style="color:#66d9ef">typeof</span>(<span style="color:#66d9ef">int</span>));<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">
 </span><span style="color:#a6e22e">    [Benchmark]</span>
     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">unsafe</span> <span style="color:#66d9ef">void</span> AllocHGlobal()
     {
         IntPtr unmanagedHandle = Marshal.AllocHGlobal(ArraySize);
         Span&lt;<span style="color:#66d9ef">byte</span>&gt; unmanaged = <span style="color:#66d9ef">new</span> Span&lt;<span style="color:#66d9ef">byte</span>&gt;(unmanagedHandle.ToPointer(), ArraySize);
         Marshal.FreeHGlobal(unmanagedHandle);
-    }
-<span style="color:#a6e22e">
+    }<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">
 </span><span style="color:#a6e22e">    [Benchmark]</span>
     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">unsafe</span> <span style="color:#66d9ef">void</span> AllocHGlobalWithLeaks()
     {
         IntPtr unmanagedHandle = Marshal.AllocHGlobal(ArraySize);
         Span&lt;<span style="color:#66d9ef">byte</span>&gt; unmanaged = <span style="color:#66d9ef">new</span> Span&lt;<span style="color:#66d9ef">byte</span>&gt;(unmanagedHandle.ToPointer(), ArraySize);
     }
-}
-</code></pre></div><p>As you can see, all you have to do to enable the profiler for native allocations is to add the <code>NativeMemoryProfiler</code> attribute to your benchmark.</p>
+}</code></pre></div>
+<p>As you can see, all you have to do to enable the profiler for native allocations is to add the <code>NativeMemoryProfiler</code> attribute to your benchmark.</p>
+
 <p>If you use <code>ManualConfig</code> you can add this profiler this way:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Config</span> : ManualConfig
 {
@@ -150,15 +158,16 @@
         Add(<span style="color:#66d9ef">new</span> NativeMemoryProfiler()); <span style="color:#75715e">// &lt;-- adding profiler for native allocation
 </span><span style="color:#75715e"></span>        <span style="color:#75715e">//Your configuration
 </span><span style="color:#75715e"></span>    }
-}
-</code></pre></div><p>If you don't want to use this profiler every time, you can also enable it from the command line using <code>-p NativeMemory</code> or <code>--profiler NativeMemory</code> parameter. This allows you to enable the <code>NativeMemoryProfiler</code> on demand.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#75715e"># for .Net Framework application:</span>
-<span style="color:#a6e22e">NativeMemorySample.exe --profiler NativeMemory</span>
-<span style="color:#75715e"># for .Net Core application:</span>
-<span style="color:#a6e22e">dotnet NativeMemorySample.dll --profiler NativeMemory </span>
-<span style="color:#75715e"># or run benchmark from the directory where is your csproj:</span>
-<span style="color:#a6e22e">dotnet run -c Release -f netcoreapp2.1 -- --filter *IntroNativeMemory.Alloc* --profiler NativeMemory</span>
-</code></pre></div><p>After running the above example code, you will see the results:</p>
+}</code></pre></div>
+<p>If you don&rsquo;t want to use this profiler every time, you can also enable it from the command line using <code>-p NativeMemory</code> or <code>--profiler NativeMemory</code> parameter. This allows you to enable the <code>NativeMemoryProfiler</code> on demand.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#75715e"># for .Net Framework application:</span>
+<span style="color:#a6e22e">NativeMemorySample.exe --profiler NativeMemory</span>
+<span style="color:#75715e"># for .Net Core application:</span>
+<span style="color:#a6e22e">dotnet NativeMemorySample.dll --profiler NativeMemory </span>
+<span style="color:#75715e"># or run benchmark from the directory where is your csproj:</span>
+<span style="color:#a6e22e">dotnet run -c Release -f netcoreapp2.1 -- --filter *IntroNativeMemory.Alloc* --profiler NativeMemory</span></code></pre></div>
+<p>After running the above example code, you will see the results:</p>
+
 <table>
 <thead>
 <tr>
@@ -174,6 +183,7 @@
 <th align="right">Native memory leak</th>
 </tr>
 </thead>
+
 <tbody>
 <tr>
 <td>AllocHGlobal</td>
@@ -187,6 +197,7 @@
 <td align="right">80 B</td>
 <td align="right">-</td>
 </tr>
+
 <tr>
 <td>AllocHGlobal WithLeaks</td>
 <td align="right">101.17 ns</td>
@@ -201,49 +212,54 @@
 </tr>
 </tbody>
 </table>
+
 <p>As you can see, <code>NativeMemoryProfiler</code> adds extra columns: &ldquo;Allocated native memory&rdquo; and &ldquo;Native memory leak&rdquo;, to the summary table. In output, you can also find additional information from this diagnoser. This log contains useful information, e.g.: the location of the exported <code>*.etl</code> files or the number of allocated and not deallocated objects.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-perl" data-lang="perl"><span style="color:#e6db74">//</span> <span style="color:#f92672">*</span> Diagnostic Output <span style="color:#f92672">-</span> NativeMemoryProfiler <span style="color:#f92672">*</span>
 Exported <span style="color:#ae81ff">2</span> trace file(s)<span style="color:#f92672">.</span> Example:
 C:<span style="color:#f92672">\</span>Work<span style="color:#f92672">\</span>NativeMemorySample<span style="color:#f92672">\</span>NativeMemorySample<span style="color:#f92672">\</span>BenchmarkDotNet<span style="color:#f92672">.</span>Artifacts<span style="color:#f92672">\</span>NativeMemorySample<span style="color:#f92672">.</span>IntroNativeMemory<span style="color:#f92672">.</span>AllocHGlobal<span style="color:#f92672">-</span><span style="color:#ae81ff">20190806</span><span style="color:#f92672">-</span><span style="color:#ae81ff">115958</span><span style="color:#f92672">.</span>etl
 
-<span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span>
+<span style="color:#f92672">--------------------</span>
 IntroNativeMemory<span style="color:#f92672">.</span>AllocHGlobal: ShortRun(IterationCount<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, LaunchCount<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>, WarmupCount<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
-<span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span>
+<span style="color:#f92672">--------------------</span>
 Native memory allocated per single operation: <span style="color:#ae81ff">80</span> B
 
-<span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span>
+<span style="color:#f92672">--------------------</span>
 IntroNativeMemory<span style="color:#f92672">.</span>AllocHGlobalWithLeaks: ShortRun(IterationCount<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>, LaunchCount<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>, WarmupCount<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
-<span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span><span style="color:#f92672">-</span>
+<span style="color:#f92672">--------------------</span>
 Native memory allocated per single operation: <span style="color:#ae81ff">80</span> B
 Native memory leak per single operation: <span style="color:#ae81ff">80</span> B
 Count of <span style="color:#f92672">not</span> deallocated object: <span style="color:#ae81ff">1</span>
 
-<span style="color:#e6db74">//</span> <span style="color:#f92672">*</span> Diagnostic Output <span style="color:#f92672">-</span> MemoryDiagnoser <span style="color:#f92672">*</span>
-</code></pre></div><h2 id="the-tracking-type-of-native-memory-allocation">The tracking type of native memory allocation</h2>
+<span style="color:#e6db74">//</span> <span style="color:#f92672">*</span> Diagnostic Output <span style="color:#f92672">-</span> MemoryDiagnoser <span style="color:#f92672">*</span></code></pre></div>
+<h2 id="the-tracking-type-of-native-memory-allocation">The tracking type of native memory allocation</h2>
+
 <p>Currently, BenchmarkDotNet does not print information about native memory allocation types, but <code>NativeMemoryProfiler</code> saves this information in <code>*.etl</code> files. As I mentioned earlier, thanks to <a href="https://github.com/kayle">@kayle</a> and his great PR <a href="https://github.com/microsoft/perfview/pull/857">microsoft/perfview#857</a>, you can easily get type names using PerfView.</p>
+
 <p>If the benchmark uses your native DLL, you can check what types were used. Here is an example C++ code of a native DLL:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">_Point</span> {
-	<span style="color:#66d9ef">int</span> X;
-	<span style="color:#66d9ef">int</span> Y;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> _Point {
+    <span style="color:#66d9ef">int</span> X;
+    <span style="color:#66d9ef">int</span> Y;
 }Point;
 
 <span style="color:#66d9ef">__declspec</span>(dllexport) Point<span style="color:#f92672">*</span> AllocateArrayOfPoint(<span style="color:#66d9ef">int</span> size)
 {
-	Point<span style="color:#f92672">*</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Point[size];
+    Point<span style="color:#f92672">*</span> a <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Point[size];
     
-	<span style="color:#75715e">// Initialize all elements.
-</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> size; i<span style="color:#f92672">+</span><span style="color:#f92672">+</span>) {
-		a[i].X <span style="color:#f92672">=</span> i;      
-		a[i].Y <span style="color:#f92672">=</span> i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>;
-	}
-	<span style="color:#66d9ef">return</span> a;
+    <span style="color:#75715e">// Initialize all elements.
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> size; i<span style="color:#f92672">++</span>) {
+        a[i].X <span style="color:#f92672">=</span> i;      
+        a[i].Y <span style="color:#f92672">=</span> i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>;
+    }
+    <span style="color:#66d9ef">return</span> a;
 }
 
 <span style="color:#66d9ef">__declspec</span>(dllexport) <span style="color:#66d9ef">void</span> DeallocateArrayOfPoint(Point<span style="color:#f92672">*</span> ptr)
 {
-	<span style="color:#66d9ef">delete</span>[] ptr;
+    <span style="color:#66d9ef">delete</span>[] ptr;
 }
-</code></pre></div><p>The<code>AllocateArrayOfPoint</code> method allocates an array of <code>Point</code> and <code>DeallocateArrayOfPoint</code> deletes this array.</p>
+</code></pre></div>
+<p>The<code>AllocateArrayOfPoint</code> method allocates an array of <code>Point</code> and <code>DeallocateArrayOfPoint</code> deletes this array.</p>
+
 <p>In C#, you need to create a wrapper for this DLL:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">[StructLayout(LayoutKind.Sequential)]</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span>
@@ -253,26 +269,26 @@ Count of <span style="color:#f92672">not</span> deallocated object: <span style=
 }
 
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">NativeDll</span>
-{
-<span style="color:#a6e22e">    [DllImport(&#34;NativeDll.dll&#34;)]</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">extern</span> IntPtr AllocateArrayOfPoint(<span style="color:#66d9ef">int</span> count);
-<span style="color:#a6e22e">
+{<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">    [DllImport(&#34;NativeDll.dll&#34;)]</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">extern</span> IntPtr AllocateArrayOfPoint(<span style="color:#66d9ef">int</span> count);<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">
 </span><span style="color:#a6e22e">    [DllImport(&#34;NativeDll.dll&#34;)]</span>
     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">extern</span> <span style="color:#66d9ef">void</span> DeallocateArrayOfPoint(IntPtr ptr);
-}
-</code></pre></div><p>Your benchmark can look like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">[ShortRunJob]</span>
-<span style="color:#a6e22e">[NativeMemoryProfiler]</span>
+}</code></pre></div>
+<p>Your benchmark can look like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">[ShortRunJob]
+</span><span style="color:#a6e22e">[NativeMemoryProfiler]</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IntroNativeMemoryFromNativeDll</span>
-{
-<span style="color:#a6e22e">    [Benchmark]</span>
+{<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">    [Benchmark]</span>
     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> AllocAndFreeNativeStruct()
     {
-        <span style="color:#66d9ef">var</span> ptr = NativeDll.AllocateArrayOfPoint(<span style="color:#ae81ff">2</span><span style="color:#ae81ff">0</span><span style="color:#ae81ff">0</span>);
+        <span style="color:#66d9ef">var</span> ptr = NativeDll.AllocateArrayOfPoint(<span style="color:#ae81ff">200</span>);
         <span style="color:#66d9ef">var</span> result = <span style="color:#ae81ff">0</span>;
         <span style="color:#66d9ef">unsafe</span>
         {
-            <span style="color:#66d9ef">var</span> bytes = <span style="color:#66d9ef">new</span> Span&lt;Point&gt;((Point*)ptr, <span style="color:#ae81ff">2</span><span style="color:#ae81ff">0</span><span style="color:#ae81ff">0</span>);
+            <span style="color:#66d9ef">var</span> bytes = <span style="color:#66d9ef">new</span> Span&lt;Point&gt;((Point*)ptr, <span style="color:#ae81ff">200</span>);
             <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> item <span style="color:#66d9ef">in</span> bytes)
             {
                 result += item.X + item.Y;
@@ -281,10 +297,11 @@ Count of <span style="color:#f92672">not</span> deallocated object: <span style=
         NativeDll.DeallocateArrayOfPoint(ptr);
         <span style="color:#66d9ef">return</span> result;
     }
-}
-</code></pre></div><p>You can run this benchmark from the command line using the following command:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release -f netcoreapp2.1 -- --filter *AllocAndFreeNativeStruct*</span>
-</code></pre></div><p>In output you can see the summary table:</p>
+}</code></pre></div>
+<p>You can run this benchmark from the command line using the following command:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release -f netcoreapp2.1 -- --filter *AllocAndFreeNativeStruct*</span></code></pre></div>
+<p>In output you can see the summary table:</p>
+
 <table>
 <thead>
 <tr>
@@ -296,6 +313,7 @@ Count of <span style="color:#f92672">not</span> deallocated object: <span style=
 <th align="right">Native memory leak</th>
 </tr>
 </thead>
+
 <tbody>
 <tr>
 <td>AllocAndFreeNativeStruct</td>
@@ -307,33 +325,51 @@ Count of <span style="color:#f92672">not</span> deallocated object: <span style=
 </tr>
 </tbody>
 </table>
+
 <p>This benchmark uses 1600 B of native memory because <code>Point</code> has two filed <code>int X</code> and <code>int Y</code>, <code>int</code> has 4 B and in this benchmark there was an array with 200 elements allocated. (2 * 4B * 200 = 1600 B)</p>
-<p>Now it's time to use the PerfView.</p>
+
+<p>Now it&rsquo;s time to use the PerfView.</p>
+
 <p>The first step is to open the <code>etl</code> file in PerfView and navigate to the Events window.</p>
+
 <p>Because BenchmarkDotNet runs your benchmarked function many times in one workload and it runs many workloads, we would like to narrow down the search. For example, the above test on my computer generates the following result log which means that my benchmarked function was running 131072 times in one workload.  And we know that there were tree workloads.</p>
-<p><img src="/images/NativeMemoryProfiler/WorkloadActual.gif" alt="1565168838473"></p>
+
+<p><img src="/images/NativeMemoryProfiler/WorkloadActual.gif" alt="1565168838473" /></p>
+
 <p>Firstly, you need to find the start and end times of the first WarkloadActual. When you have these times, you can find all <code>HeapTrace</code> events. In summary, you can find information about how many objects were allocated:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#">Native memory allocated per single operation: <span style="color:#ae81ff">1</span><span style="color:#ae81ff">6</span><span style="color:#ae81ff">0</span><span style="color:#ae81ff">0</span> B
-Count of allocated <span style="color:#66d9ef">object</span>: <span style="color:#ae81ff">1</span>
-</code></pre></div><p>In my example, there was only one object which means that the first event <code>HeapTraceProvider/HeapTrace/Alloc</code> came from the first run of my benchmarked function, from the first workload. The following image shows how to find this information in PerfView:</p>
-<p><img src="/images/NativeMemoryProfiler/PerfView-events-windows.gif#mid" alt="PerfView-events-windows"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#">Native memory allocated per single operation: <span style="color:#ae81ff">1600</span> B
+Count of allocated <span style="color:#66d9ef">object</span>: <span style="color:#ae81ff">1</span></code></pre></div>
+<p>In my example, there was only one object which means that the first event <code>HeapTraceProvider/HeapTrace/Alloc</code> came from the first run of my benchmarked function, from the first workload. The following image shows how to find this information in PerfView:</p>
+
+<p><img src="/images/NativeMemoryProfiler/PerfView-events-windows.gif#mid" alt="PerfView-events-windows" /></p>
+
 <p>Now it is time to show the information regarding types. In PerfView you should open <code>Net OS Heap Alloc Stacks</code> window from <code>Memory Group</code>. You can use the start and end times of the first Workload because only data between these times is interesting. Below you can see, how to show the information about on types of allocated objects.</p>
-<p><img src="/images/NativeMemoryProfiler/PerfView-heap-windows.gif#mid" alt="PerfView-events-windows"></p>
+
+<p><img src="/images/NativeMemoryProfiler/PerfView-heap-windows.gif#mid" alt="PerfView-events-windows" /></p>
+
 <h2 id="how-it-works">How it works</h2>
+
 <p>To implement <code>NativeMemoryProfiler</code> I used <code>EtwProfiler</code> that runs User, Kernel, and Heap ETW sessions. Each session writes data to its own file and in the end these files are marge to one <code>*.etl</code> file. The <code>NativeMemoryProfiler</code> uses different events from different sessions:</p>
+
 <ul>
 <li>BenchmarkDotNet Engine events, like <code>WorkloadActualStart</code> and <code>WorkloadActualStop</code> from User session,</li>
 <li>HeapTrace events, like <code>HeapTraceAlloc</code>, <code>HeapTraceFree</code>, <code>HeapTraceReAlloc</code>, <code>HeapTraceDestroy</code>, from Heap session.</li>
 </ul>
+
 <p>You can find the source code in my PRs: <a href="https://github.com/dotnet/BenchmarkDotNet/pull/1131">#1131</a> and <a href="https://github.com/dotnet/BenchmarkDotNet/pull/1208">#1208</a> or directly in the BenchmarkDotNet <a href="https://github.com/dotnet/BenchmarkDotNet/blob/master/src/BenchmarkDotNet.Diagnostics.Windows/NativeMemoryProfiler.cs">code</a>.</p>
+
 <h2 id="limitations">Limitations</h2>
+
 <p>Because <code>NativeMemoryProfiler</code> uses <code>EtwProfiler</code>, it also has its limitations:</p>
+
 <ul>
 <li>Windows only</li>
 <li>Requires running as Admin (ETW Kernel Session)</li>
 <li>No <code>InProcessToolchain</code> support</li>
 </ul>
+
 <h2 id="summary">Summary</h2>
+
 <p>In advanced projects, native code and resources are used very often. Currently, during benchmarking your code, not only you can easily check its speed, but also check how much native memory it uses, thanks to <code>NativeMemoryProfiler</code>.</p>
 
 
@@ -415,7 +451,7 @@ Count of allocated <span style="color:#66d9ef">object</span>: <span style="color
 
 </main>
     <footer>
-        <h6>© 2018 Wojciech Nagórski |
+        <h6>&copy; 2018 Wojciech Nagórski |
             Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
             <a href="/index.xml">Subscribe</a></h6>
     </footer>

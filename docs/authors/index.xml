@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
      <channel>
@@ -9,7 +10,6 @@
        <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
        <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
        <copyright>&amp;copy; 2018 Wojciech Nagórski</copyright>
-       <lastBuildDate>Tue, 10 Dec 2019 02:13:54 -0400</lastBuildDate>
        
            <atom:link href="/authors/index.xml" rel="self" type="application/rss+xml" />
        

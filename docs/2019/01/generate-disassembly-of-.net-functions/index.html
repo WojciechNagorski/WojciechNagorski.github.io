@@ -7,7 +7,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="How to generate the disassembly of .NET functions and how to diff many of them." />
-  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.60.1" />
+  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.51" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
@@ -112,30 +112,38 @@
 </aside>
     
 
-    <p>In this post you will learn how to generate the disassembly of .NET functions and how to diff many of them.</p>
+    
+
+<p>In this post you will learn how to generate the disassembly of .NET functions and how to diff many of them.</p>
+
 <p>It was not so long ago when I added a new feature to <a href="https://github.com/dotnet/BenchmarkDotNet">BenchmarkDotNet</a> that allows you to generate a diff raport for many dissassembly of .NET function. You can see all the changes in following PRs: <a href="https://github.com/dotnet/BenchmarkDotNet/pull/927">#927</a>, <a href="https://github.com/dotnet/BenchmarkDotNet/pull/937">#937</a> and <a href="https://github.com/dotnet/BenchmarkDotNet/pull/1022">#1022</a>.</p>
+
 <p>In this post I will be using the benchmark code from PR <a href="https://github.com/dotnet/coreclr/pull/13626">dotnet/coreclr#13626</a> to <a href="https://github.com/dotnet/coreclr">CoreCLR</a> repo. In metioned PR <a href="https://github.com/mikedn">@mikedn</a> enables JIT to generate more efficient BT instruction in some situations. It is great example to show my exporter in action.</p>
+
 <h2 id="generate-disassembly">Generate disassembly</h2>
+
 <p>In <a href="https://github.com/dotnet/BenchmarkDotNet">BenchmarkDotNet</a> you can easily generate disassembler for .NET function. All you need is add <code>[DisassemblyDiagnoser]</code> attribute to your benchmark, like below:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">    [DisassemblyDiagnoser]</span>
     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IntroDisassembly</span>
-    {
-<span style="color:#a6e22e">        [Benchmark(OperationsPerInvoke = 10_000_000)]</span>
+    {<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">        [Benchmark(OperationsPerInvoke = 10_000_000)]</span>
         <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> LoweringTESTtoBT()
         {
             <span style="color:#66d9ef">int</span> y = <span style="color:#ae81ff">0</span>, x = <span style="color:#ae81ff">0</span>;
 
-            <span style="color:#66d9ef">while</span> (x++ &lt; <span style="color:#ae81ff">1</span><span style="color:#ae81ff">0</span>_000_000)
+            <span style="color:#66d9ef">while</span> (x++ &lt; <span style="color:#ae81ff">10</span>_000_000)
                 <span style="color:#66d9ef">if</span> ((x &amp; (<span style="color:#ae81ff">1</span> &lt;&lt; y)) == <span style="color:#ae81ff">0</span>)
                     y++;
 
             <span style="color:#66d9ef">return</span> y;
         }
-    }
-</code></pre></div><p>You can also do this with the <code>-d</code> or <code>--disasm</code> command line arguments.</p>
+    }</code></pre></div>
+<p>You can also do this with the <code>-d</code> or <code>--disasm</code> command line arguments.</p>
+
 <p>Running this benchmark will create lot of reports in directory<code>BenchmarkDotNet.Artifacts\results</code>. Among them is <code>ProjectName.IntroDisassembly-asm.pretty.md</code> that looks like:</p>
+
 <p><strong>.NET Core 2.1.6 (CoreCLR 4.6.27019.06, CoreFX 4.6.27019.05), 64bit RyuJIT</strong></p>
-<pre><code class="language-assembly" data-lang="assembly">; BenchmarkDotNet.Samples.IntroDisassemblyCode.LoweringTESTtoBT()
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-assembly" data-lang="assembly">; BenchmarkDotNet.Samples.IntroDisassemblyCode.LoweringTESTtoBT()
        xor     eax,eax
        xor     edx,edx
        jmp     M00_L01
@@ -149,21 +157,25 @@ M00_L01:
        cmp     edx,989680h
        jl      M00_L00
        ret
-; Total bytes of code 27
-</code></pre><p>You can use this feature to understand why one solution is better then other or you can learn about how C# code which you wrote works on your computer.</p>
+; Total bytes of code 27</code></pre></div>
+<p>You can use this feature to understand why one solution is better then other or you can learn about how C# code which you wrote works on your computer.</p>
+
 <p>Nothing new so far ;)</p>
+
 <h2 id="generates-diff-of-two-disassembly">Generates diff of two disassembly</h2>
+
 <p>Sometimes your code works fast on newer version of .NET Core and works slow on the older one. That is quite common case, because .NET Core is improving very fast. In other case you probably would see performance regression and create issue to <a href="https://github.com/dotnet/coreclr">CoreCLR</a> repo.</p>
+
 <p>If you want to generate disassembly of function for multiple .NET versions, just configure your test, e. g.:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">[Config(typeof(MultipleJits))]</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IntroDisassembly</span>
-{
-<span style="color:#a6e22e">    [Benchmark(OperationsPerInvoke = 10_000_000)]</span>
+{<span style="color:#a6e22e">
+</span><span style="color:#a6e22e">    [Benchmark(OperationsPerInvoke = 10_000_000)]</span>
     <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> LoweringTESTtoBT()
     {
         <span style="color:#66d9ef">int</span> y = <span style="color:#ae81ff">0</span>, x = <span style="color:#ae81ff">0</span>;
 
-        <span style="color:#66d9ef">while</span> (x++ &lt; <span style="color:#ae81ff">1</span><span style="color:#ae81ff">0</span>_000_000)
+        <span style="color:#66d9ef">while</span> (x++ &lt; <span style="color:#ae81ff">10</span>_000_000)
             <span style="color:#66d9ef">if</span> ((x &amp; (<span style="color:#ae81ff">1</span> &lt;&lt; y)) == <span style="color:#ae81ff">0</span>)
                 y++;
 
@@ -183,14 +195,16 @@ M00_L01:
         <span style="color:#75715e">// Add disassembly diagnoser with printDiff = true
 </span><span style="color:#75715e"></span>        Add(DisassemblyDiagnoser.Create(<span style="color:#66d9ef">new</span> DisassemblyDiagnoserConfig(printAsm: <span style="color:#66d9ef">true</span>, printPrologAndEpilog: <span style="color:#66d9ef">false</span>, recursiveDepth: <span style="color:#ae81ff">3</span>, printDiff: <span style="color:#66d9ef">true</span>)));
     }
-}
-</code></pre></div><p>In this example I added two jobs. One for .NET Core 2.0 and other for .NET Core 2.1. I added also <code>DisassemblyDiagnoser</code> with <code>printDiff</code> option set to <code>true</code>.</p>
-<p>After benchmark run, you can see that <a href="https://github.com/mikedn">@mikedn's</a> optimization made this code much faster on .NET Core 2.1:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini">           <span style="color:#a6e22e">Method |     Toolchain |      Mean |     Error |    StdDev |</span>
-<span style="color:#a6e22e">----------------- |-------------- |----------:|----------:|----------:|</span>
- <span style="color:#a6e22e">LoweringTESTtoBT | .NET Core 2.0 | 2.3164 ns | 0.8837 ns | 0.0484 ns |</span>
- <span style="color:#a6e22e">LoweringTESTtoBT | .NET Core 2.1 | 0.6531 ns | 0.2882 ns | 0.0158 ns |</span>
-</code></pre></div><p>In directory <code>BenchmarkDotNet.Artifacts\results</code> you will see also <code>ProjectName.IntroDisassembly-asm.pretty.diff.md</code> that looks:</p>
+}</code></pre></div>
+<p>In this example I added two jobs. One for .NET Core 2.0 and other for .NET Core 2.1. I added also <code>DisassemblyDiagnoser</code> with <code>printDiff</code> option set to <code>true</code>.</p>
+
+<p>After benchmark run, you can see that <a href="https://github.com/mikedn">@mikedn&rsquo;s</a> optimization made this code much faster on .NET Core 2.1:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini">           <span style="color:#a6e22e">Method |     Toolchain |      Mean |     Error |    StdDev |</span>
+<span style="color:#a6e22e">----------------- |-------------- |----------:|----------:|----------:|</span>
+ <span style="color:#a6e22e">LoweringTESTtoBT | .NET Core 2.0 | 2.3164 ns | 0.8837 ns | 0.0484 ns |</span>
+ <span style="color:#a6e22e">LoweringTESTtoBT | .NET Core 2.1 | 0.6531 ns | 0.2882 ns | 0.0158 ns |</span></code></pre></div>
+<p>In directory <code>BenchmarkDotNet.Artifacts\results</code> you will see also <code>ProjectName.IntroDisassembly-asm.pretty.diff.md</code> that looks:</p>
+
 <p><strong>BenchmarkDotNet.Samples.IntroDisassemblyCode</strong>
 <strong>Diff for LoweringTESTtoBT method between:</strong>
 .NET Core 2.0.9 (CoreCLR 4.6.26614.01, CoreFX 4.6.26614.01), 64bit RyuJIT
@@ -201,11 +215,11 @@ M00_L01:
         jmp     M00_L01
  M00_L00:
 <span style="color:#f92672">-       mov     ecx,eax
-</span><span style="color:#f92672"></span><span style="color:#f92672">-       and     ecx,1Fh
-</span><span style="color:#f92672"></span><span style="color:#f92672">-       mov     edx,1
-</span><span style="color:#f92672"></span><span style="color:#f92672">-       shl     edx,cl
-</span><span style="color:#f92672"></span><span style="color:#f92672">-       mov     ecx,dword ptr [rsp+4]
-</span><span style="color:#f92672"></span><span style="color:#f92672">-       test    edx,ecx
+</span><span style="color:#f92672">-       and     ecx,1Fh
+</span><span style="color:#f92672">-       mov     edx,1
+</span><span style="color:#f92672">-       shl     edx,cl
+</span><span style="color:#f92672">-       mov     ecx,dword ptr [rsp+4]
+</span><span style="color:#f92672">-       test    edx,ecx
 </span><span style="color:#f92672"></span><span style="color:#a6e22e">+       bt      ecx,eax
 </span><span style="color:#a6e22e"></span>        mov     edx,ecx
 <span style="color:#f92672">-       jne     M00_L01
@@ -217,12 +231,16 @@ M00_L01:
 </span><span style="color:#f92672"></span>        cmp     edx,989680h
         jl      M00_L00
 <span style="color:#f92672">-       add     rsp,8
-</span><span style="color:#f92672"></span><span style="color:#f92672">-; Total bytes of code 49
+</span><span style="color:#f92672">-; Total bytes of code 49
 </span><span style="color:#f92672"></span><span style="color:#a6e22e">+       ret
-</span><span style="color:#a6e22e"></span><span style="color:#a6e22e">+; Total bytes of code 27
-</span></code></pre></div><h2 id="limitations">Limitations</h2>
+</span><span style="color:#a6e22e">+; Total bytes of code 27
+</span><span style="color:#a6e22e"></span></code></pre></div>
+<h2 id="limitations">Limitations</h2>
+
 <p>Please note that this exporter internally uses the <code>git diff</code> command, so it requires a <a href="https://git-scm.com/">GIT</a> installed on the system.</p>
+
 <h2 id="summary">Summary</h2>
+
 <p>Thanks to this report you can easily see what has been changed in the assembly code on various versions of .NET runtimes. You can also copy and paste it to GitHub.</p>
 
 
@@ -304,7 +322,7 @@ M00_L01:
 
 </main>
     <footer>
-        <h6>© 2018 Wojciech Nagórski |
+        <h6>&copy; 2018 Wojciech Nagórski |
             Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
             <a href="/index.xml">Subscribe</a></h6>
     </footer>
