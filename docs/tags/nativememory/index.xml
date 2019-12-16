@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
      <channel>
-       <title>Nativememory on Wojciech Nagórski</title>
+       <title>NativeMemory on Wojciech Nagórski</title>
        <link>/tags/nativememory/</link>
-       <description>Recent content in Nativememory on Wojciech Nagórski</description>
+       <description>Recent content in NativeMemory on Wojciech Nagórski</description>
        <generator>Hugo -- gohugo.io</generator>
        <language>en-us</language>
        <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
@@ -21,25 +20,18 @@
          <pubDate>Mon, 30 Sep 2019 02:13:54 -0400</pubDate>
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
          <guid>/2019/09/using-native-dll-and-resource-files-in-benchmarkdotnet-projects/</guid>
-         <description>
-
-&lt;p&gt;In a previous &lt;a href=&#34;/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/&#34;&gt;post&lt;/a&gt;, I described the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; which I implemented in the &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; library. It caused that I got many questions about using native DLL files in benchmark projects. Many people want to use &lt;code&gt;post-build&lt;/code&gt; events but they do not work. There is an issue &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/946&#34;&gt;dotnet/BenchmarkDotNet#946&lt;/a&gt;. I know a better solution, so I decided to describe this topic.&lt;/p&gt;
-
+         <description>&lt;p&gt;In a previous &lt;a href=&#34;/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/&#34;&gt;post&lt;/a&gt;, I described the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; which I implemented in the &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; library. It caused that I got many questions about using native DLL files in benchmark projects. Many people want to use &lt;code&gt;post-build&lt;/code&gt; events but they do not work. There is an issue &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/946&#34;&gt;dotnet/BenchmarkDotNet#946&lt;/a&gt;. I know a better solution, so I decided to describe this topic.&lt;/p&gt;
 &lt;p&gt;In this post, I would like to show you, how to use native DLL or resource files in benchmark projects.&lt;/p&gt;
-
 &lt;p&gt;If you only need solution, you can navigate to the &lt;a href=&#34;#solution&#34;&gt;solution&lt;/a&gt; section, but if you would like to understand the problem you need to read the whole article.&lt;/p&gt;
-
 &lt;h2 id=&#34;the-story&#34;&gt;The story&lt;/h2&gt;
-
-&lt;p&gt;When you run your benchmark project, the BenchmarkDotNet generates an isolated project that references to your project. This generated project is built and run, during each run of your benchmark. Let&amp;rsquo;s create a really simple benchmark project that shows us this mechanism.&lt;/p&gt;
-
-&lt;p&gt;In the beginning, we have to create a new project. I&amp;rsquo;m going to use &lt;a href=&#34;https://github.com/dotnet/cli&#34;&gt;dotnet CLI&lt;/a&gt;, so that you can follow the steps below on Windows, Linux or macOs.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;mkdir UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;cd UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet new console&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Then we need to add the BenchmarkDotNet nuget to this project.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet add package BenchmarkDotNet&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;After configuring the project, we can implement our benchmark. Below is a &lt;code&gt;Program.cs&lt;/code&gt; file:&lt;/p&gt;
+&lt;p&gt;When you run your benchmark project, the BenchmarkDotNet generates an isolated project that references to your project. This generated project is built and run, during each run of your benchmark. Let&#39;s create a really simple benchmark project that shows us this mechanism.&lt;/p&gt;
+&lt;p&gt;In the beginning, we have to create a new project. I&#39;m going to use &lt;a href=&#34;https://github.com/dotnet/cli&#34;&gt;dotnet CLI&lt;/a&gt;, so that you can follow the steps below on Windows, Linux or macOs.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;mkdir UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;cd UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet new console&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then we need to add the BenchmarkDotNet nuget to this project.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet add package BenchmarkDotNet&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After configuring the project, we can implement our benchmark. Below is a &lt;code&gt;Program.cs&lt;/code&gt; file:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; System;
 &lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Attributes;
 &lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Running;
@@ -48,17 +40,17 @@
 {
     &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Program&lt;/span&gt;
     {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Main(&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[]&lt;/span&gt; args) =&amp;gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Main(&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;[] args) =&amp;gt;
             BenchmarkSwitcher.FromAssembly(&lt;span style=&#34;color:#66d9ef&#34;&gt;typeof&lt;/span&gt;(Program).Assembly).Run(args);
     }
 
     &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Benchmark&lt;/span&gt;
-    {&lt;span style=&#34;color:#a6e22e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark]&lt;/span&gt;
+    {
+&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark]&lt;/span&gt;
         &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Sum()
         {
             &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; result = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;; i++)
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i++)
             {
                 result += i;
             }
@@ -66,47 +58,42 @@
             &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; result;
         }
     }
-}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Now we can run this project with a &lt;code&gt;--keepfiles&lt;/code&gt; option. If you add this option, all auto-generated files will be kept after running the benchmark.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -- --filter *Sum* --keepfiles&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Now, &lt;code&gt;bin&lt;/code&gt; directory should contain all generated files. In our case, we were run only one benchmark so all files should be in &lt;code&gt;DefaultJob&lt;/code&gt; directory.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;λ cd bin\Release\netcoreapp3.0\DefaultJob&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;λ ls  # or dir for windows console&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Autogenerated.csproj  DefaultJob.bat  DefaultJob.notcs  bin/  obj/&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;As you can see, BenchmarkDotNet generates a new project for us, called&lt;code&gt;BenchmarkDotNet.Autogenerated.csproj&lt;/code&gt;. For instance, when you want to run your benchmark for many frameworks, BenchmarkDotNet will generate many projects for you. Each generated project has its own &lt;code&gt;bin&lt;/code&gt; directory and is run from this location.&lt;/p&gt;
-
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we can run this project with a &lt;code&gt;--keepfiles&lt;/code&gt; option. If you add this option, all auto-generated files will be kept after running the benchmark.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -- --filter *Sum* --keepfiles&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now, &lt;code&gt;bin&lt;/code&gt; directory should contain all generated files. In our case, we were run only one benchmark so all files should be in &lt;code&gt;DefaultJob&lt;/code&gt; directory.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;λ cd bin\Release\netcoreapp3.0\DefaultJob&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;λ ls  # or dir for windows console&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Autogenerated.csproj  DefaultJob.bat  DefaultJob.notcs  bin/  obj/&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As you can see, BenchmarkDotNet generates a new project for us, called&lt;code&gt;BenchmarkDotNet.Autogenerated.csproj&lt;/code&gt;. For instance, when you want to run your benchmark for many frameworks, BenchmarkDotNet will generate many projects for you. Each generated project has its own &lt;code&gt;bin&lt;/code&gt; directory and is run from this location.&lt;/p&gt;
 &lt;p&gt;Since BenchmarkDotNet does not run benchmarks from default &lt;code&gt;bin&lt;/code&gt; directory, you can not use any recourses from there. Therefore, &lt;code&gt;post-build&lt;/code&gt; events do not work because they are running during building the benchmark project, not auto-generated projects.&lt;/p&gt;
-
 &lt;h2 id=&#34;solution&#34;&gt;Solution&lt;/h2&gt;
-
 &lt;p&gt;The solution is really simple. Instead of &lt;code&gt;post-build&lt;/code&gt; events, you should use &lt;a href=&#34;https://docs.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items?view=vs-2019#none&#34;&gt;None or Compile project item&lt;/a&gt;. Below you can see an example of copying &lt;code&gt;NativeDll.dll&lt;/code&gt; from &lt;code&gt;solutionDir\x64\Release&lt;/code&gt; directory into &lt;code&gt;bin&lt;/code&gt; directory of the benchmark project, as well as into &lt;code&gt;bin&lt;/code&gt; directories of all auto-generated projects that refer to the benchmark project. If you set &lt;code&gt;Visible&lt;/code&gt; to true, then the file will be visible in the solution explorer.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\x64\$(Configuration)\NativeDll.dll&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
-    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;NativeDll.dll&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
-    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
-    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;NativeDll.dll&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
-&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;What&amp;rsquo;s more, you do not have to add file by file. You can also copy the entire directory using this method.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;What&#39;s more, you do not have to add file by file. You can also copy the entire directory using this method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
     &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\Resources\**\*.*&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
-      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
-      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
-      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
     &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;You can also copy all files of a given type, for example, all DLL files from a directory:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can also copy all files of a given type, for example, all DLL files from a directory:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
     &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\Resources\**\*.dll&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
-      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
-      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
-      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
     &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
-  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
-
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
 &lt;p&gt;If you are creating a project with benchmarks using BenchmarkDotNet, you should include additional files as if you were creating a nuget package.&lt;/p&gt;
-
 &lt;p&gt;If you think this post is useful, let me know in the comments below.&lt;/p&gt;
 </description>
        </item>
@@ -117,44 +104,36 @@
          <pubDate>Thu, 08 Aug 2019 02:13:54 -0400</pubDate>
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
          <guid>/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/</guid>
-         <description>
-
-&lt;p&gt;The &lt;strong&gt;&lt;code&gt;NativeMemoryProfiler&lt;/code&gt;&lt;/strong&gt; is a new diagnoser for &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; that I implemented in version 0.11.6. In this post, you will learn how to analyze native memory allocations in your code. It sounds like a difficult topic, but trust me, you can do it really easily with BenchmarkDotNet.&lt;/p&gt;
-
-&lt;h4 id=&#34;the-story&#34;&gt;The story&lt;/h4&gt;
-
+         <description>&lt;p&gt;The &lt;strong&gt;&lt;code&gt;NativeMemoryProfiler&lt;/code&gt;&lt;/strong&gt; is a new diagnoser for &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; that I implemented in version 0.12.0. In this post, you will learn how to analyze native memory allocations in your code. It sounds like a difficult topic, but trust me, you can do it really easily with BenchmarkDotNet.&lt;/p&gt;
+&lt;h2 id=&#34;the-story&#34;&gt;The story&lt;/h2&gt;
 &lt;p&gt;Not so long ago, I got a task that was difficult for me. To be honest, I did not know where to start. I like this kind of tasks because they are a challenge and a good opportunity to learn something new. I had to create an application to validate native DLLs that were created by other companies. This application should call all functions, check how long it takes to execute all functions and check if functions do not allocate native memory. The last thing was the hardest for me.&lt;/p&gt;
-
 &lt;p&gt;I thought I would find a solution in some open source project. I started from BenchmarkDotNet which is my favorite .NET library for benchmarking. To my surprise, it turned out that BenchmarkDotNet did not support tracking native allocations. I even found an issue &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/457&#34;&gt;dotnet/BenchmarkDotNet#457&lt;/a&gt; that had labels: &lt;code&gt;help wanted&lt;/code&gt; and &lt;code&gt;up-for-grabs&lt;/code&gt;. Luckily in this issue, I found information that &lt;a href=&#34;https://github.com/kayle&#34;&gt;@kayle&lt;/a&gt; added support for tracking type of native memory allocations in &lt;a href=&#34;https://github.com/microsoft/perfview&#34;&gt;PerfView&lt;/a&gt;. Here is his PR &lt;a href=&#34;https://github.com/microsoft/perfview/pull/857&#34;&gt;microsoft/perfview#857&lt;/a&gt;. Thanks to it, I had all the information to solve my problem but also I was able to make &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; for BenchmarkDotNet. So I did it.&lt;/p&gt;
-
-&lt;h4 id=&#34;demo&#34;&gt;Demo&lt;/h4&gt;
-
+&lt;h2 id=&#34;demo&#34;&gt;Demo&lt;/h2&gt;
 &lt;p&gt;Bellow is a sample benchmark which uses the &lt;code&gt;Marshal.AllocHGlobal&lt;/code&gt; and &lt;code&gt;Marshal.FreeHGlobal&lt;/code&gt; methods to allocate and free native memory.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[ShortRunJob]
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[NativeMemoryProfiler]&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- This attribute enables the profiler for native allocation.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[ShortRunJob]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;[NativeMemoryProfiler]&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- This attribute enables the profiler for native allocation.
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[MemoryDiagnoser]&lt;/span&gt;
 &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroNativeMemory&lt;/span&gt;
 {
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Size = &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// Greater value could cause System.OutOfMemoryException for a test with memory leaks.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ArraySize = Size * Marshal.SizeOf(&lt;span style=&#34;color:#66d9ef&#34;&gt;typeof&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;));&lt;span style=&#34;color:#a6e22e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Size = &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// Greater value could cause System.OutOfMemoryException for a test with memory leaks.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ArraySize = Size * Marshal.SizeOf(&lt;span style=&#34;color:#66d9ef&#34;&gt;typeof&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;));
+&lt;span style=&#34;color:#a6e22e&#34;&gt;
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark]&lt;/span&gt;
     &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;unsafe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; AllocHGlobal()
     {
         IntPtr unmanagedHandle = Marshal.AllocHGlobal(ArraySize);
         Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt; unmanaged = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt;(unmanagedHandle.ToPointer(), ArraySize);
         Marshal.FreeHGlobal(unmanagedHandle);
-    }&lt;span style=&#34;color:#a6e22e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;
+    }
+&lt;span style=&#34;color:#a6e22e&#34;&gt;
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark]&lt;/span&gt;
     &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;unsafe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; AllocHGlobalWithLeaks()
     {
         IntPtr unmanagedHandle = Marshal.AllocHGlobal(ArraySize);
         Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt; unmanaged = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt;(unmanagedHandle.ToPointer(), ArraySize);
     }
-}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;As you can see, all you have to do to enable the profiler for native allocations is to add the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; attribute to your benchmark.&lt;/p&gt;
-
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As you can see, all you have to do to enable the profiler for native allocations is to add the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; attribute to your benchmark.&lt;/p&gt;
 &lt;p&gt;If you use &lt;code&gt;ManualConfig&lt;/code&gt; you can add this profiler this way:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Config&lt;/span&gt; : ManualConfig
 {
@@ -163,16 +142,15 @@
         Add(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; NativeMemoryProfiler()); &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- adding profiler for native allocation
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//Your configuration
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    }
-}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;If you don&amp;rsquo;t want to use this profiler every time, you can also enable it from the command line using &lt;code&gt;-p NativeMemory&lt;/code&gt; or &lt;code&gt;--profiler NativeMemory&lt;/code&gt; parameter. This allows you to enable the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; on demand.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# for .Net Framework application:&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;NativeMemorySample.exe --profiler NativeMemory&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# for .Net Core application:&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet NativeMemorySample.dll --profiler NativeMemory &lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;# or run benchmark from the directory where is your csproj:&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -f netcoreapp2.1 -- --filter *IntroNativeMemory.Alloc* --profiler NativeMemory&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;After running the above example code, you will see the results:&lt;/p&gt;
-
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you don&#39;t want to use this profiler every time, you can also enable it from the command line using &lt;code&gt;-p NativeMemory&lt;/code&gt; or &lt;code&gt;--profiler NativeMemory&lt;/code&gt; parameter. This allows you to enable the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; on demand.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# for .Net Framework application:&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;NativeMemorySample.exe --profiler NativeMemory&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# for .Net Core application:&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet NativeMemorySample.dll --profiler NativeMemory &lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# or run benchmark from the directory where is your csproj:&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -f netcoreapp2.1 -- --filter *IntroNativeMemory.Alloc* --profiler NativeMemory&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After running the above example code, you will see the results:&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -188,7 +166,6 @@
 &lt;th align=&#34;right&#34;&gt;Native memory leak&lt;/th&gt;
 &lt;/tr&gt;
 &lt;/thead&gt;
-
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;AllocHGlobal&lt;/td&gt;
@@ -202,7 +179,6 @@
 &lt;td align=&#34;right&#34;&gt;80 B&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
 &lt;/tr&gt;
-
 &lt;tr&gt;
 &lt;td&gt;AllocHGlobal WithLeaks&lt;/td&gt;
 &lt;td align=&#34;right&#34;&gt;101.17 ns&lt;/td&gt;
@@ -217,54 +193,49 @@
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-
 &lt;p&gt;As you can see, &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; adds extra columns: &amp;ldquo;Allocated native memory&amp;rdquo; and &amp;ldquo;Native memory leak&amp;rdquo;, to the summary table. In output, you can also find additional information from this diagnoser. This log contains useful information, e.g.: the location of the exported &lt;code&gt;*.etl&lt;/code&gt; files or the number of allocated and not deallocated objects.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-perl&#34; data-lang=&#34;perl&#34;&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; Diagnostic Output &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; NativeMemoryProfiler &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;
 Exported &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; trace file(s)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt; Example:
 C:&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;Work&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;NativeMemorySample&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;NativeMemorySample&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;BenchmarkDotNet&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Artifacts&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;NativeMemorySample&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;IntroNativeMemory&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AllocHGlobal&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;20190806&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;115958&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;etl
 
-&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;
 IntroNativeMemory&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AllocHGlobal: ShortRun(IterationCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, LaunchCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, WarmupCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;)
-&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;
 Native memory allocated per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt; B
 
-&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;
 IntroNativeMemory&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AllocHGlobalWithLeaks: ShortRun(IterationCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, LaunchCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, WarmupCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;)
-&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;
 Native memory allocated per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt; B
 Native memory leak per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt; B
 Count of &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; deallocated object: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
 
-&lt;span style=&#34;color:#e6db74&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; Diagnostic Output &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; MemoryDiagnoser &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;h4 id=&#34;the-tracking-type-of-native-memory-allocation&#34;&gt;The tracking type of native memory allocation&lt;/h4&gt;
-
+&lt;span style=&#34;color:#e6db74&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; Diagnostic Output &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; MemoryDiagnoser &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;the-tracking-type-of-native-memory-allocation&#34;&gt;The tracking type of native memory allocation&lt;/h2&gt;
 &lt;p&gt;Currently, BenchmarkDotNet does not print information about native memory allocation types, but &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; saves this information in &lt;code&gt;*.etl&lt;/code&gt; files. As I mentioned earlier, thanks to &lt;a href=&#34;https://github.com/kayle&#34;&gt;@kayle&lt;/a&gt; and his great PR &lt;a href=&#34;https://github.com/microsoft/perfview/pull/857&#34;&gt;microsoft/perfview#857&lt;/a&gt;, you can easily get type names using PerfView.&lt;/p&gt;
-
 &lt;p&gt;If the benchmark uses your native DLL, you can check what types were used. Here is an example C++ code of a native DLL:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; _Point {
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; X;
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Y;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_Point&lt;/span&gt; {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; X;
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Y;
 }Point;
 
 &lt;span style=&#34;color:#66d9ef&#34;&gt;__declspec&lt;/span&gt;(dllexport) Point&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; AllocateArrayOfPoint(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; size)
 {
-    Point&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; a &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Point[size];
+	Point&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; a &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Point[size];
     
-    &lt;span style=&#34;color:#75715e&#34;&gt;// Initialize all elements.
-&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; size; i&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) {
-        a[i].X &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; i;      
-        a[i].Y &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
-    }
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; a;
+	&lt;span style=&#34;color:#75715e&#34;&gt;// Initialize all elements.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; size; i&lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;) {
+		a[i].X &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; i;      
+		a[i].Y &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+	}
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; a;
 }
 
 &lt;span style=&#34;color:#66d9ef&#34;&gt;__declspec&lt;/span&gt;(dllexport) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; DeallocateArrayOfPoint(Point&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; ptr)
 {
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;delete&lt;/span&gt;[] ptr;
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;delete&lt;/span&gt;[] ptr;
 }
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The&lt;code&gt;AllocateArrayOfPoint&lt;/code&gt; method allocates an array of &lt;code&gt;Point&lt;/code&gt; and &lt;code&gt;DeallocateArrayOfPoint&lt;/code&gt; deletes this array.&lt;/p&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The&lt;code&gt;AllocateArrayOfPoint&lt;/code&gt; method allocates an array of &lt;code&gt;Point&lt;/code&gt; and &lt;code&gt;DeallocateArrayOfPoint&lt;/code&gt; deletes this array.&lt;/p&gt;
 &lt;p&gt;In C#, you need to create a wrapper for this DLL:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[StructLayout(LayoutKind.Sequential)]&lt;/span&gt;
 &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Point&lt;/span&gt;
@@ -274,26 +245,26 @@ Count of &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; deallocated 
 }
 
 &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;NativeDll&lt;/span&gt;
-{&lt;span style=&#34;color:#a6e22e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [DllImport(&amp;#34;NativeDll.dll&amp;#34;)]&lt;/span&gt;
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;extern&lt;/span&gt; IntPtr AllocateArrayOfPoint(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; count);&lt;span style=&#34;color:#a6e22e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;
+{
+&lt;span style=&#34;color:#a6e22e&#34;&gt;    [DllImport(&amp;#34;NativeDll.dll&amp;#34;)]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;extern&lt;/span&gt; IntPtr AllocateArrayOfPoint(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; count);
+&lt;span style=&#34;color:#a6e22e&#34;&gt;
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [DllImport(&amp;#34;NativeDll.dll&amp;#34;)]&lt;/span&gt;
     &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;extern&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; DeallocateArrayOfPoint(IntPtr ptr);
-}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Your benchmark can look like this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[ShortRunJob]
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[NativeMemoryProfiler]&lt;/span&gt;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Your benchmark can look like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[ShortRunJob]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;[NativeMemoryProfiler]&lt;/span&gt;
 &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroNativeMemoryFromNativeDll&lt;/span&gt;
-{&lt;span style=&#34;color:#a6e22e&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark]&lt;/span&gt;
+{
+&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark]&lt;/span&gt;
     &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; AllocAndFreeNativeStruct()
     {
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; ptr = NativeDll.AllocateArrayOfPoint(&lt;span style=&#34;color:#ae81ff&#34;&gt;200&lt;/span&gt;);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; ptr = NativeDll.AllocateArrayOfPoint(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
         &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; result = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
         &lt;span style=&#34;color:#66d9ef&#34;&gt;unsafe&lt;/span&gt;
         {
-            &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; bytes = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Span&amp;lt;Point&amp;gt;((Point*)ptr, &lt;span style=&#34;color:#ae81ff&#34;&gt;200&lt;/span&gt;);
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; bytes = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Span&amp;lt;Point&amp;gt;((Point*)ptr, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
             &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; item &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; bytes)
             {
                 result += item.X + item.Y;
@@ -302,11 +273,10 @@ Count of &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; deallocated 
         NativeDll.DeallocateArrayOfPoint(ptr);
         &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; result;
     }
-}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;You can run this benchmark from the command line using the following command:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -f netcoreapp2.1 -- --filter *AllocAndFreeNativeStruct*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;In output you can see the summary table:&lt;/p&gt;
-
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can run this benchmark from the command line using the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -f netcoreapp2.1 -- --filter *AllocAndFreeNativeStruct*&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In output you can see the summary table:&lt;/p&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
@@ -318,7 +288,6 @@ Count of &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; deallocated 
 &lt;th align=&#34;right&#34;&gt;Native memory leak&lt;/th&gt;
 &lt;/tr&gt;
 &lt;/thead&gt;
-
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;AllocAndFreeNativeStruct&lt;/td&gt;
@@ -330,51 +299,33 @@ Count of &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; deallocated 
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-
 &lt;p&gt;This benchmark uses 1600 B of native memory because &lt;code&gt;Point&lt;/code&gt; has two filed &lt;code&gt;int X&lt;/code&gt; and &lt;code&gt;int Y&lt;/code&gt;, &lt;code&gt;int&lt;/code&gt; has 4 B and in this benchmark there was an array with 200 elements allocated. (2 * 4B * 200 = 1600 B)&lt;/p&gt;
-
-&lt;p&gt;Now it&amp;rsquo;s time to use the PerfView.&lt;/p&gt;
-
+&lt;p&gt;Now it&#39;s time to use the PerfView.&lt;/p&gt;
 &lt;p&gt;The first step is to open the &lt;code&gt;etl&lt;/code&gt; file in PerfView and navigate to the Events window.&lt;/p&gt;
-
 &lt;p&gt;Because BenchmarkDotNet runs your benchmarked function many times in one workload and it runs many workloads, we would like to narrow down the search. For example, the above test on my computer generates the following result log which means that my benchmarked function was running 131072 times in one workload.  And we know that there were tree workloads.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/WorkloadActual.gif&#34; alt=&#34;1565168838473&#34; /&gt;&lt;/p&gt;
-
+&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/WorkloadActual.gif&#34; alt=&#34;1565168838473&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Firstly, you need to find the start and end times of the first WarkloadActual. When you have these times, you can find all &lt;code&gt;HeapTrace&lt;/code&gt; events. In summary, you can find information about how many objects were allocated:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;Native memory allocated per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;1600&lt;/span&gt; B
-Count of allocated &lt;span style=&#34;color:#66d9ef&#34;&gt;object&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;In my example, there was only one object which means that the first event &lt;code&gt;HeapTraceProvider/HeapTrace/Alloc&lt;/code&gt; came from the first run of my benchmarked function, from the first workload. The following image shows how to find this information in PerfView:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/PerfView-events-windows.gif#mid&#34; alt=&#34;PerfView-events-windows&#34; /&gt;&lt;/p&gt;
-
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;Native memory allocated per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;6&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; B
+Count of allocated &lt;span style=&#34;color:#66d9ef&#34;&gt;object&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In my example, there was only one object which means that the first event &lt;code&gt;HeapTraceProvider/HeapTrace/Alloc&lt;/code&gt; came from the first run of my benchmarked function, from the first workload. The following image shows how to find this information in PerfView:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/PerfView-events-windows.gif#mid&#34; alt=&#34;PerfView-events-windows&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Now it is time to show the information regarding types. In PerfView you should open &lt;code&gt;Net OS Heap Alloc Stacks&lt;/code&gt; window from &lt;code&gt;Memory Group&lt;/code&gt;. You can use the start and end times of the first Workload because only data between these times is interesting. Below you can see, how to show the information about on types of allocated objects.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/PerfView-heap-windows.gif#mid&#34; alt=&#34;PerfView-events-windows&#34; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&#34;how-it-works&#34;&gt;How it works&lt;/h4&gt;
-
+&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/PerfView-heap-windows.gif#mid&#34; alt=&#34;PerfView-events-windows&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;how-it-works&#34;&gt;How it works&lt;/h2&gt;
 &lt;p&gt;To implement &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; I used &lt;code&gt;EtwProfiler&lt;/code&gt; that runs User, Kernel, and Heap ETW sessions. Each session writes data to its own file and in the end these files are marge to one &lt;code&gt;*.etl&lt;/code&gt; file. The &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; uses different events from different sessions:&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;BenchmarkDotNet Engine events, like &lt;code&gt;WorkloadActualStart&lt;/code&gt; and &lt;code&gt;WorkloadActualStop&lt;/code&gt; from User session,&lt;/li&gt;
 &lt;li&gt;HeapTrace events, like &lt;code&gt;HeapTraceAlloc&lt;/code&gt;, &lt;code&gt;HeapTraceFree&lt;/code&gt;, &lt;code&gt;HeapTraceReAlloc&lt;/code&gt;, &lt;code&gt;HeapTraceDestroy&lt;/code&gt;, from Heap session.&lt;/li&gt;
 &lt;/ul&gt;
-
 &lt;p&gt;You can find the source code in my PRs: &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/1131&#34;&gt;#1131&lt;/a&gt; and &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/1208&#34;&gt;#1208&lt;/a&gt; or directly in the BenchmarkDotNet &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/blob/master/src/BenchmarkDotNet.Diagnostics.Windows/NativeMemoryProfiler.cs&#34;&gt;code&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&#34;limitations&#34;&gt;Limitations&lt;/h4&gt;
-
+&lt;h2 id=&#34;limitations&#34;&gt;Limitations&lt;/h2&gt;
 &lt;p&gt;Because &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; uses &lt;code&gt;EtwProfiler&lt;/code&gt;, it also has its limitations:&lt;/p&gt;
-
 &lt;ul&gt;
 &lt;li&gt;Windows only&lt;/li&gt;
 &lt;li&gt;Requires running as Admin (ETW Kernel Session)&lt;/li&gt;
 &lt;li&gt;No &lt;code&gt;InProcessToolchain&lt;/code&gt; support&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;h4 id=&#34;summary&#34;&gt;Summary&lt;/h4&gt;
-
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
 &lt;p&gt;In advanced projects, native code and resources are used very often. Currently, during benchmarking your code, not only you can easily check its speed, but also check how much native memory it uses, thanks to &lt;code&gt;NativeMemoryProfiler&lt;/code&gt;.&lt;/p&gt;
 </description>
        </item>

@@ -20,7 +20,7 @@ In this post, I would like to show you, how to use native DLL or resource files 
 
 If you only need solution, you can navigate to the [solution](#solution) section, but if you would like to understand the problem you need to read the whole article.  
 
-## The story ##
+## The story
 When you run your benchmark project, the BenchmarkDotNet generates an isolated project that references to your project. This generated project is built and run, during each run of your benchmark. Let's create a really simple benchmark project that shows us this mechanism.
 
 In the beginning, we have to create a new project. I'm going to use [dotnet CLI](https://github.com/dotnet/cli), so that you can follow the steps below on Windows, Linux or macOs. 
@@ -87,7 +87,7 @@ As you can see, BenchmarkDotNet generates a new project for us, called`Benchmark
 
 Since BenchmarkDotNet does not run benchmarks from default `bin` directory, you can not use any recourses from there. Therefore, `post-build` events do not work because they are running during building the benchmark project, not auto-generated projects.
 
-## Solution ##
+## Solution
 
 The solution is really simple. Instead of `post-build` events, you should use [None or Compile project item](https://docs.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items?view=vs-2019#none). Below you can see an example of copying `NativeDll.dll` from `solutionDir\x64\Release` directory into `bin` directory of the benchmark project, as well as into `bin` directories of all auto-generated projects that refer to the benchmark project. If you set `Visible` to true, then the file will be visible in the solution explorer.
 
@@ -125,7 +125,7 @@ You can also copy all files of a given type, for example, all DLL files from a d
   </ItemGroup>
 ```
 
-## Summary ##
+## Summary
 
 If you are creating a project with benchmarks using BenchmarkDotNet, you should include additional files as if you were creating a nuget package. 
 

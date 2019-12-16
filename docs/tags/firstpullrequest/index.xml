@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
      <channel>
-       <title>Firstpullrequest on Wojciech Nagórski</title>
+       <title>FirstPullRequest on Wojciech Nagórski</title>
        <link>/tags/firstpullrequest/</link>
-       <description>Recent content in Firstpullrequest on Wojciech Nagórski</description>
+       <description>Recent content in FirstPullRequest on Wojciech Nagórski</description>
        <generator>Hugo -- gohugo.io</generator>
        <language>en-us</language>
        <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
@@ -21,43 +20,31 @@
          <pubDate>Tue, 11 Dec 2018 11:16:00 -0400</pubDate>
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
          <guid>/2018/12/first-pull-request-in-open-source/</guid>
-         <description>
-
-&lt;p&gt;Not so long ago, I saw a video &lt;a href=&#34;https://www.youtube.com/watch?v=2HSPKyAyuik&#34;&gt;Adam Sitnik - My awesome journey with Open Source&lt;/a&gt; and it opened my eyes.&lt;/p&gt;
-
+         <description>&lt;p&gt;Not so long ago, I saw a video &lt;a href=&#34;https://www.youtube.com/watch?v=2HSPKyAyuik&#34;&gt;Adam Sitnik - My awesome journey with Open Source&lt;/a&gt; and it opened my eyes.&lt;/p&gt;
 &lt;p&gt;I am a senior developer with 11 years of experience in programming. In my career, I did a lot of great things connected to programming, but only my colleagues from work knew about it. If I would like to change my job, I would have to prove my qualifications. Another sad thing about both my personal and business projects is that most of my code is NOT used anymore. It really makes me sad. Than that video came up. Adam showed me that I can create code that will be used all over the world for many, many years. Solution is Open Source.&lt;/p&gt;
-
 &lt;p&gt;But, how to start?&lt;/p&gt;
-
 &lt;ol&gt;
 &lt;li&gt;Find the repo of project that interests you.&lt;/li&gt;
 &lt;li&gt;Go to Issue tab and filter issue by labels: &amp;ldquo;good first issue&amp;rdquo;, &amp;ldquo;help wanted&amp;rdquo; or &amp;ldquo;up-for-grabs&amp;rdquo;.&lt;/li&gt;
 &lt;li&gt;Optional: Ask if selected issue is up to date and is not blocked.&lt;/li&gt;
 &lt;li&gt;Try to implement missing functionality.&lt;/li&gt;
-&lt;li&gt;Make a pull request. If you don&amp;rsquo;t know how to do it, please open Google or Youtube and type: &amp;ldquo;how to create pull request on github&amp;rdquo;. It takes only few minutes.&lt;/li&gt;
+&lt;li&gt;Make a pull request. If you don&#39;t know how to do it, please open Google or Youtube and type: &amp;ldquo;how to create pull request on github&amp;rdquo;. It takes only few minutes.&lt;/li&gt;
 &lt;/ol&gt;
-
 &lt;p&gt;So, I tried.&lt;/p&gt;
-
 &lt;ol&gt;
-&lt;li&gt;I&amp;rsquo;ve chosen &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; repo. Why? I&amp;rsquo;ve used this tool and learned many things when using it.&lt;/li&gt;
-&lt;li&gt;I&amp;rsquo;ve found &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/905&#34;&gt;Implement &lt;code&gt;--list&lt;/code&gt;&lt;/a&gt; issue. The task had all the labels that I mentioned above.&lt;/li&gt;
-&lt;li&gt;I&amp;rsquo;ve reserved task for myself.&lt;/li&gt;
+&lt;li&gt;I&#39;ve chosen &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; repo. Why? I&#39;ve used this tool and learned many things when using it.&lt;/li&gt;
+&lt;li&gt;I&#39;ve found &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/905&#34;&gt;Implement &lt;code&gt;--list&lt;/code&gt;&lt;/a&gt; issue. The task had all the labels that I mentioned above.&lt;/li&gt;
+&lt;li&gt;I&#39;ve reserved task for myself.&lt;/li&gt;
 &lt;li&gt;I will describe implementation below.&lt;/li&gt;
-&lt;li&gt;I&amp;rsquo;ve done &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/914&#34;&gt;pull request&lt;/a&gt; with my changes.&lt;/li&gt;
+&lt;li&gt;I&#39;ve done &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/914&#34;&gt;pull request&lt;/a&gt; with my changes.&lt;/li&gt;
 &lt;/ol&gt;
-
 &lt;h2 id=&#34;implementation&#34;&gt;Implementation&lt;/h2&gt;
-
-&lt;p&gt;I didn&amp;rsquo;t do anything special in this task. Remember that it was the first pull request to Open Source.&lt;/p&gt;
-
+&lt;p&gt;I didn&#39;t do anything special in this task. Remember that it was the first pull request to Open Source.&lt;/p&gt;
 &lt;p&gt;In this issue I had to implement console line &lt;code&gt;--list&lt;/code&gt; option which will print all of available benchmark names. This option should have two modes:&lt;/p&gt;
-
 &lt;h5 id=&#34;1-flat-list&#34;&gt;1. Flat list&lt;/h5&gt;
-
 &lt;p&gt;This mode is simple list of all benchmark names.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Samples.exe --list flat&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre&gt;&lt;code&gt;BenchmarkDotNet.Samples.Algo_Md5VsSha256.Md5
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Samples.exe --list flat&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;pre&gt;&lt;code&gt;BenchmarkDotNet.Samples.Algo_Md5VsSha256.Md5
 BenchmarkDotNet.Samples.Algo_Md5VsSha256.Sha256
 BenchmarkDotNet.Samples.IntroArguments.Benchmark
 BenchmarkDotNet.Samples.IntroArgumentsSource.SingleArgument
@@ -67,13 +54,10 @@ BenchmarkDotNet.Samples.IntroArrayParam.ManualIndexOf
 BenchmarkDotNet.Samples.IntroBasic.Sleep
 BenchmarkDotNet.Samples.IntroBasic.Thread.Sleep(10)
 [...]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;2-tree-list&#34;&gt;2. Tree list&lt;/h5&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;h5 id=&#34;2-tree-list&#34;&gt;2. Tree list&lt;/h5&gt;
 &lt;p&gt;In this mode BenchmarkDotNet should print all benchmark names as a tree list.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Samples.exe --list tree&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;pre&gt;&lt;code&gt;BenchmarkDotNet
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Samples.exe --list tree&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;pre&gt;&lt;code&gt;BenchmarkDotNet
  └─Samples
     ├─Algo_Md5VsSha256
     │  ├─Md5
@@ -91,10 +75,7 @@ BenchmarkDotNet.Samples.IntroBasic.Thread.Sleep(10)
     │  └─Thread
     │     └─Sleep(10)
 [...]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;At first I added new console parameter. &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; uses &lt;a href=&#34;https://github.com/commandlineparser/commandline&#34;&gt;CommandLineParser&lt;/a&gt; to parse command line attributes. CommandLineParser is useful tool that I implemented in many of projects. If you don&amp;rsquo;t know it, here you can find &lt;a href=&#34;https://github.com/commandlineparser/commandline&#34;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;At first I added new console parameter. &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; uses &lt;a href=&#34;https://github.com/commandlineparser/commandline&#34;&gt;CommandLineParser&lt;/a&gt; to parse command line attributes. CommandLineParser is useful tool that I implemented in many of projects. If you don&#39;t know it, here you can find &lt;a href=&#34;https://github.com/commandlineparser/commandline&#34;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;This parameter should have three values: Disable, Flat and Tree. I just added enum:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;enum&lt;/span&gt; ListBenchmarkCaseMode
     {
@@ -112,18 +93,17 @@ BenchmarkDotNet.Samples.IntroBasic.Thread.Sleep(10)
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// Prints tree of the available full benchmark names.
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// &amp;lt;/summary&amp;gt;
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Tree
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Then I added the appropriate option to the class that is used for parsing command line attributes.&lt;/p&gt;
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then I added the appropriate option to the class that is used for parsing command line attributes.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[Option(&amp;#34;list&amp;#34;, Required = false, Default = ListBenchmarkCaseMode.Disable, HelpText = &amp;#34;Prints all of the available benchmark names. Flat/Tree&amp;#34;)]&lt;/span&gt;
-&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; ListBenchmarkCaseMode ListBenchmarkCaseMode { &lt;span style=&#34;color:#66d9ef&#34;&gt;get&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;set&lt;/span&gt;; }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Displaying the tree list was the most difficult part. Fortunately, I read &lt;a href=&#34;https://andrewlock.net/about/&#34;&gt;Andrew Lock&lt;/a&gt; blog who wrote post &lt;a href=&#34;https://andrewlock.net/creating-an-ascii-art-tree-in-csharp/&#34;&gt;Creating an ASCII-art tree in C#&lt;/a&gt;. All I had to do was to check the source code license. Luckily for me, it was a &lt;a href=&#34;https://opensource.org/licenses/MIT&#34;&gt;MIT license&lt;/a&gt;.&lt;/p&gt;
-
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; ListBenchmarkCaseMode ListBenchmarkCaseMode { &lt;span style=&#34;color:#66d9ef&#34;&gt;get&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;set&lt;/span&gt;; }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Displaying the tree list was the most difficult part. Fortunately, I read &lt;a href=&#34;https://andrewlock.net/about/&#34;&gt;Andrew Lock&lt;/a&gt; blog who wrote post &lt;a href=&#34;https://andrewlock.net/creating-an-ascii-art-tree-in-csharp/&#34;&gt;Creating an ASCII-art tree in C#&lt;/a&gt;. All I had to do was to check the source code license. Luckily for me, it was a &lt;a href=&#34;https://opensource.org/licenses/MIT&#34;&gt;MIT license&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;I created interface:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;interface&lt;/span&gt; IBenchmarkCasesPrinter
     {
         &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testNames);
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;And two implementation of it. One for each mode.&lt;/p&gt;
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And two implementation of it. One for each mode.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;FlatBenchmarkCasesPrinter&lt;/span&gt; : IBenchmarkCasesPrinter
     {
         &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testNames)
@@ -133,14 +113,15 @@ BenchmarkDotNet.Samples.IntroBasic.Thread.Sleep(10)
                 Console.WriteLine(test);
             }
         }
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;TreeBenchmarkCasesPrinter&lt;/span&gt; : IBenchmarkCasesPrinter
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;TreeBenchmarkCasesPrinter&lt;/span&gt; : IBenchmarkCasesPrinter
     {
         &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testNames)
         {
             &lt;span style=&#34;color:#75715e&#34;&gt;//Here is the algorithm from the Andrew Lock&amp;#39;s blog
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        }
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;In next step I used &lt;a href=&#34;https://en.wikipedia.org/wiki/Facade_pattern&#34;&gt;fasade pattern&lt;/a&gt; because I wanted to mask interaction with more complex components behind a single API.&lt;/p&gt;
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In next step I used &lt;a href=&#34;https://en.wikipedia.org/wiki/Facade_pattern&#34;&gt;fasade pattern&lt;/a&gt; because I wanted to mask interaction with more complex components behind a single API.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-C#&#34; data-lang=&#34;C#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkCasesPrinter&lt;/span&gt; : IBenchmarkCasesPrinter
     {
         &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;readonly&lt;/span&gt; IBenchmarkCasesPrinter printer;
@@ -152,38 +133,33 @@ BenchmarkDotNet.Samples.IntroBasic.Thread.Sleep(10)
                 : &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; FlatBenchmarkCasesPrinter();
         }
          &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testName) =&amp;gt; printer.Print(testName);
-    }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;Next I searched for a place where BenchmarkDotNet gets all benchmarks. In the end, I created and run the fasade class, if the value of &lt;code&gt;--list&lt;/code&gt; parameter was set. Bellow you can see how I changed the original code.&lt;/p&gt;
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next I searched for a place where BenchmarkDotNet gets all benchmarks. In the end, I created and run the fasade class, if the value of &lt;code&gt;--list&lt;/code&gt; parameter was set. Bellow you can see how I changed the original code.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;- var filteredBenchmarks = typeParser.Filter(effectiveConfig);
 &lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ var filteredBenchmarks = typeParser.Filter(effectiveConfig, listBenchmarkCase);
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
   if (filteredBenchmarks.IsEmpty())
-    return Array.Empty&amp;lt;Summary&amp;gt;();
-    
+	return Array.Empty&amp;lt;Summary&amp;gt;();
+	
 &lt;span style=&#34;color:#a6e22e&#34;&gt;+ var listBenchmarkCase = options.ListBenchmarkCaseMode != BistBenchmarkCaseMode.Disable;
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ if (listBenchmarkCase)
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ {
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+   var testNames = filteredBenchmarks.SelectMany(p =&amp;gt; p.BenchmarksCases)
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+       .Select(p =&amp;gt; p.Descriptor.GetFilterName()).Distinct();
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ if (listBenchmarkCase)
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ {
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	var testNames = filteredBenchmarks.SelectMany(p =&amp;gt; p.BenchmarksCases)
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 		.Select(p =&amp;gt; p.Descriptor.GetFilterName()).Distinct();
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;+   var printer = new BenchmarkCasesPrinter(options.ListBenchmarkCaseMode);
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+   printer.Print(testNames);
+&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	var printer = new BenchmarkCasesPrinter(options.ListBenchmarkCaseMode);
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	printer.Print(testNames);
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#a6e22e&#34;&gt;+   return Enumerable.Empty&amp;lt;Summary&amp;gt;();
-&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ }
+&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	return Enumerable.Empty&amp;lt;Summary&amp;gt;();
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ }
 &lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
   //Old beheviour
   summaries.AddRange(BenchmarkRunner.Run(filteredBenchmarks, effectiveConfig));
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;You can see all the details in &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/914&#34;&gt;pull request&lt;/a&gt;.&lt;/p&gt;
-
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You can see all the details in &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/914&#34;&gt;pull request&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;This task did not require knowledge of BenchmarkDotNet internals like running the tests. It was good lesson, you do not need to know the entire source code of the project. You should keep focus on the very specific problem which you want to solve. It saves a lot of time.&lt;/p&gt;
-
 &lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
-
 &lt;p&gt;I did this task in no time but doing it made me really happy. The most rewarding thing is that this feature is useful both for me and also for people around the world. The funny thing is that Adam Sitnik showed this feature on Get.Net conference. I was absent but a colleague sent me a photo:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&#34;/images/GetNet.jpg#mid&#34; alt=&#34;YamlDotNet configurations&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/images/GetNet.jpg#mid&#34; alt=&#34;YamlDotNet configurations&#34;&gt;&lt;/p&gt;
 </description>
        </item>
        

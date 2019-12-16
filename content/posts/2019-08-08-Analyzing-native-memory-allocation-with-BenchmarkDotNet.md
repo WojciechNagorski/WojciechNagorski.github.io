@@ -14,15 +14,15 @@ tags:
   - NativeMemory
 ---
 
-The **`NativeMemoryProfiler`** is a new diagnoser for [BenchmarkDotNet](https://benchmarkdotnet.org/) that I implemented in version 0.11.6. In this post, you will learn how to analyze native memory allocations in your code. It sounds like a difficult topic, but trust me, you can do it really easily with BenchmarkDotNet.
+The **`NativeMemoryProfiler`** is a new diagnoser for [BenchmarkDotNet](https://benchmarkdotnet.org/) that I implemented in version 0.12.0. In this post, you will learn how to analyze native memory allocations in your code. It sounds like a difficult topic, but trust me, you can do it really easily with BenchmarkDotNet.
 
 
-#### The story
+## The story
 Not so long ago, I got a task that was difficult for me. To be honest, I did not know where to start. I like this kind of tasks because they are a challenge and a good opportunity to learn something new. I had to create an application to validate native DLLs that were created by other companies. This application should call all functions, check how long it takes to execute all functions and check if functions do not allocate native memory. The last thing was the hardest for me.
 
 I thought I would find a solution in some open source project. I started from BenchmarkDotNet which is my favorite .NET library for benchmarking. To my surprise, it turned out that BenchmarkDotNet did not support tracking native allocations. I even found an issue [dotnet/BenchmarkDotNet#457](https://github.com/dotnet/BenchmarkDotNet/issues/457) that had labels: `help wanted` and `up-for-grabs`. Luckily in this issue, I found information that [@kayle](https://github.com/kayle) added support for tracking type of native memory allocations in [PerfView](https://github.com/microsoft/perfview). Here is his PR [microsoft/perfview#857](https://github.com/microsoft/perfview/pull/857). Thanks to it, I had all the information to solve my problem but also I was able to make `NativeMemoryProfiler` for BenchmarkDotNet. So I did it.
 
-#### Demo
+## Demo
 
 Bellow is a sample benchmark which uses the `Marshal.AllocHGlobal` and `Marshal.FreeHGlobal` methods to allocate and free native memory. 
 
@@ -106,7 +106,7 @@ Count of not deallocated object: 1
 
 // * Diagnostic Output - MemoryDiagnoser *
 ```
-#### The tracking type of native memory allocation
+## The tracking type of native memory allocation
 
 Currently, BenchmarkDotNet does not print information about native memory allocation types, but `NativeMemoryProfiler` saves this information in `*.etl` files. As I mentioned earlier, thanks to [@kayle](https://github.com/kayle) and his great PR [microsoft/perfview#857](https://github.com/microsoft/perfview/pull/857), you can easily get type names using PerfView.
 
@@ -221,7 +221,7 @@ Now it is time to show the information regarding types. In PerfView you should o
 
 ![PerfView-events-windows](/images/NativeMemoryProfiler/PerfView-heap-windows.gif#mid)
 
-#### How it works
+## How it works
 
 To implement `NativeMemoryProfiler` I used `EtwProfiler` that runs User, Kernel, and Heap ETW sessions. Each session writes data to its own file and in the end these files are marge to one `*.etl` file. The `NativeMemoryProfiler` uses different events from different sessions:
 
@@ -230,7 +230,7 @@ To implement `NativeMemoryProfiler` I used `EtwProfiler` that runs User, Kernel,
 
 You can find the source code in my PRs: [#1131](https://github.com/dotnet/BenchmarkDotNet/pull/1131) and [#1208](https://github.com/dotnet/BenchmarkDotNet/pull/1208) or directly in the BenchmarkDotNet [code](https://github.com/dotnet/BenchmarkDotNet/blob/master/src/BenchmarkDotNet.Diagnostics.Windows/NativeMemoryProfiler.cs).
 
-#### Limitations
+## Limitations
 
 Because `NativeMemoryProfiler` uses `EtwProfiler`, it also has its limitations:
 
@@ -238,5 +238,5 @@ Because `NativeMemoryProfiler` uses `EtwProfiler`, it also has its limitations:
 - Requires running as Admin (ETW Kernel Session)
 - No `InProcessToolchain` support
 
-#### Summary	
+## Summary	
 In advanced projects, native code and resources are used very often. Currently, during benchmarking your code, not only you can easily check its speed, but also check how much native memory it uses, thanks to `NativeMemoryProfiler`.

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
      <channel>
@@ -16,7 +15,7 @@
        
        
        <item>
-         <title>Benchmarkdotnet</title>
+         <title>BenchmarkDotNet</title>
          <link>/categories/benchmarkdotnet/</link>
          <pubDate>Tue, 10 Dec 2019 02:13:54 -0400</pubDate>
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
@@ -25,7 +24,7 @@
        </item>
        
        <item>
-         <title>Opensource</title>
+         <title>OpenSource</title>
          <link>/categories/opensource/</link>
          <pubDate>Tue, 10 Dec 2019 02:13:54 -0400</pubDate>
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
@@ -34,7 +33,7 @@
        </item>
        
        <item>
-         <title>Yamldotnet</title>
+         <title>YamlDotNet</title>
          <link>/categories/yamldotnet/</link>
          <pubDate>Tue, 18 Dec 2018 02:11:01 -0100</pubDate>
          <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>

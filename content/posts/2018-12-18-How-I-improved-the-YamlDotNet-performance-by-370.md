@@ -17,7 +17,7 @@ tags:
 
 The [YamlDotNet](https://github.com/aaubry/YamlDotNet) is the most famous library to manage YAML format on .Net platform. This library is really stable and good solution. Many of my programs use this library, so I thought that this is prefect open source project that I can improve. 
 
-#### What can I do?
+## What can I do?
 
 I've opened [issues tab](https://github.com/aaubry/YamlDotNet/issues) looking for issues with labels: "good first issue", "help wanted" or "up-for-grabs". However I couldn't find them because this specific labels names are not used in this project. 
 
@@ -52,7 +52,7 @@ foreach(var test in tests)
 
 You can find original code [here](https://github.com/aaubry/YamlDotNet/blob/v5.2.1/PerformanceTests/YamlDotNet.PerformanceTests.Lib/PerformanceTestRunner.cs#L46-L67).
 
-As you can see tests here are using `StopWatch` class to measure code performance. The better way to do it is to use [BenchmarkDotNet which is a powerful .NET library for benchmarking. 
+As you can see tests here are using `StopWatch` class to measure code performance. The better way to do it is to use [BenchmarkDotNet](https://benchmarkdotnet.org/) which is a powerful .NET library for benchmarking. 
 
 So, let's see how to start.
 

@@ -7,7 +7,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Thanks to using BenchmarkDotNet I improved the YamlDotNet performance by 370%." />
-  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.51" />
+  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.60.1" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
@@ -115,16 +115,10 @@
 </aside>
     
 
-    
-
-<p>The <a href="https://github.com/aaubry/YamlDotNet">YamlDotNet</a> is the most famous library to manage YAML format on .Net platform. This library is really stable and good solution. Many of my programs use this library, so I thought that this is prefect open source project that I can improve.</p>
-
-<h4 id="what-can-i-do">What can I do?</h4>
-
-<p>I&rsquo;ve opened <a href="https://github.com/aaubry/YamlDotNet/issues">issues tab</a> looking for issues with labels: &ldquo;good first issue&rdquo;, &ldquo;help wanted&rdquo; or &ldquo;up-for-grabs&rdquo;. However I couldn&rsquo;t find them because this specific labels names are not used in this project.</p>
-
+    <p>The <a href="https://github.com/aaubry/YamlDotNet">YamlDotNet</a> is the most famous library to manage YAML format on .Net platform. This library is really stable and good solution. Many of my programs use this library, so I thought that this is prefect open source project that I can improve.</p>
+<h2 id="what-can-i-do">What can I do?</h2>
+<p>I've opened <a href="https://github.com/aaubry/YamlDotNet/issues">issues tab</a> looking for issues with labels: &ldquo;good first issue&rdquo;, &ldquo;help wanted&rdquo; or &ldquo;up-for-grabs&rdquo;. However I couldn't find them because this specific labels names are not used in this project.</p>
 <p>I thought that I could read the source code and maybe I find something interesting to improve. I have to admit that the source code of the library is really clean. I took a look at the performance tests and immediately realized that I want to improve them.</p>
-
 <p>The <a href="https://github.com/aaubry/YamlDotNet">YamlDotNet</a> used to use <code>Stopwatch</code> to measure performance of benchmark tests. The main loop that run the tests looked like:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#66d9ef">foreach</span>(<span style="color:#66d9ef">var</span> test <span style="color:#66d9ef">in</span> tests)
 {
@@ -147,80 +141,66 @@
     }
     <span style="color:#66d9ef">var</span> duration = timer.Elapsed;
     Console.WriteLine(<span style="color:#e6db74">&#34;{0}&#34;</span>, duration.TotalMilliseconds / iterations);
-}</code></pre></div>
-<p>You can find original code <a href="https://github.com/aaubry/YamlDotNet/blob/v5.2.1/PerformanceTests/YamlDotNet.PerformanceTests.Lib/PerformanceTestRunner.cs#L46-L67">here</a>.</p>
-
-<p>As you can see tests here are using <code>StopWatch</code> class to measure code performance. The better way to do it is to use [BenchmarkDotNet which is a powerful .NET library for benchmarking.</p>
-
-<p>So, let&rsquo;s see how to start.</p>
-
+}
+</code></pre></div><p>You can find original code <a href="https://github.com/aaubry/YamlDotNet/blob/v5.2.1/PerformanceTests/YamlDotNet.PerformanceTests.Lib/PerformanceTestRunner.cs#L46-L67">here</a>.</p>
+<p>As you can see tests here are using <code>StopWatch</code> class to measure code performance. The better way to do it is to use <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a> which is a powerful .NET library for benchmarking.</p>
+<p>So, let's see how to start.</p>
 <p>At first I wrote code of the test:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#a6e22e">[MemoryDiagnoser]</span>
 <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReceiptTest</span>
 {
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> Receipt _receipt = <span style="color:#66d9ef">new</span> Receipt();
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> StringWriter _buffer = <span style="color:#66d9ef">new</span> StringWriter();
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> Receipt _receipt = <span style="color:#66d9ef">new</span> Receipt();
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> StringWriter _buffer = <span style="color:#66d9ef">new</span> StringWriter();
 
-    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> ISerializer _serializer = <span style="color:#66d9ef">new</span> SerializerBuilder()
-        .WithNamingConvention(<span style="color:#66d9ef">new</span> CamelCaseNamingConvention())
-        .Build();<span style="color:#a6e22e">
-</span><span style="color:#a6e22e">
+	<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> ISerializer _serializer = <span style="color:#66d9ef">new</span> SerializerBuilder()
+		.WithNamingConvention(<span style="color:#66d9ef">new</span> CamelCaseNamingConvention())
+		.Build();
+<span style="color:#a6e22e">
 </span><span style="color:#a6e22e">    [Benchmark(Description = &#34;Serialize vlatest&#34;)]</span>
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> Serialize()
-    {
-        _serializer.Serialize(_buffer, _receipt.Graph);
-    }
-}</code></pre></div>
-<p>The <code>Serialize()</code> method marked with <code>[Benchmark]</code> attribute is my benchmark test. I&rsquo;ve used <code>[MemoryDiagnoser]</code> because I wanted to know how much memory was used by the <a href="https://github.com/aaubry/YamlDotNet">YamlDotNet</a>.</p>
-
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> Serialize()
+	{
+		_serializer.Serialize(_buffer, _receipt.Graph);
+	}
+}
+</code></pre></div><p>The <code>Serialize()</code> method marked with <code>[Benchmark]</code> attribute is my benchmark test. I've used <code>[MemoryDiagnoser]</code> because I wanted to know how much memory was used by the <a href="https://github.com/aaubry/YamlDotNet">YamlDotNet</a>.</p>
 <p>Then I modified the <code>Program</code> class:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Program</span>
 {
-    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> Main(<span style="color:#66d9ef">string</span><span style="color:#a6e22e">[]</span> args)
-    {
-        <span style="color:#66d9ef">var</span> summary = BenchmarkRunner.Run&lt;ReceiptTest&gt;();
-    }
-}</code></pre></div>
-<p>I couldn&rsquo;t wait to see my great change in action, so I run the program from console:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release</span></code></pre></div>
-<p>Unfortunately, I got error message:</p>
-
+	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> Main(<span style="color:#66d9ef">string</span>[] args)
+	{
+		<span style="color:#66d9ef">var</span> summary = BenchmarkRunner.Run&lt;ReceiptTest&gt;();
+	}
+}
+</code></pre></div><p>I couldn't wait to see my great change in action, so I run the program from console:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release</span>
+</code></pre></div><p>Unfortunately, I got error message:</p>
 <pre><code>// Validating benchmarks:
 Assembly YamlDotNet.PerformanceTests.vlatest which defines benchmarks references non-optimized YamlDotNet
         If you own this dependency, please, build it in RELEASE.
         If you don't, you can create custom config with DontFailOnError to disable our custom policy and allow this benchmark to run.
-</code></pre>
-
-<p>As a message say <code>If you own this dependency, please, build it in RELEASE</code> and I went to my Visual Studio and I see:</p>
-
-<p><img src="/images/YamlDotNetConfigurations.png#normal" alt="YamlDotNet configurations" /></p>
-
+</code></pre><p>As a message say <code>If you own this dependency, please, build it in RELEASE</code> and I went to my Visual Studio and I see:</p>
+<p><img src="/images/YamlDotNetConfigurations.png#normal" alt="YamlDotNet configurations"></p>
 <p>I had chosen <code>Release-PerformanceTests</code> but BenchmarkDotNet printed me a message that I had to build the library in <code>Release</code>. Something was wrong.</p>
-
-<p>For unknown reasons, <code>Release-PerformanceTests</code> doesn&rsquo;t work in the same way like <code>Release</code> configuration. After short research I find an <a href="https://www.pedrolamas.com/2017/04/24/creating-custom-build-configurations-for-the-dotnet-core-project-format/">article</a> about this problem.</p>
-
-<p>In turned out that the new .csproj format for .Net Core doesn&rsquo;t have the same behavior as the old one. The <code>Release-*</code> configurations doesn&rsquo;t inherit from <code>Release</code> configuration anymore. All I had to do was set several parameters in the project file:</p>
+<p>For unknown reasons, <code>Release-PerformanceTests</code> doesn't work in the same way like <code>Release</code> configuration. After short research I find an <a href="https://www.pedrolamas.com/2017/04/24/creating-custom-build-configurations-for-the-dotnet-core-project-format/">article</a> about this problem.</p>
+<p>In turned out that the new .csproj format for .Net Core doesn't have the same behavior as the old one. The <code>Release-*</code> configurations doesn't inherit from <code>Release</code> configuration anymore. All I had to do was set several parameters in the project file:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#f92672">&lt;PropertyGroup</span> <span style="color:#a6e22e">Condition=</span><span style="color:#e6db74">&#34; &#39;$(Configuration)&#39; == &#39;Release-Signed&#39; Or &#39;$(Configuration)&#39; == &#39;Release-Unsigned&#39; &#34;</span><span style="color:#f92672">&gt;</span>
-    <span style="color:#f92672">&lt;DefineConstants&gt;</span>$(DefineConstants);RELEASE;TRACE<span style="color:#f92672">&lt;/DefineConstants&gt;</span>
-    <span style="color:#f92672">&lt;DebugSymbols&gt;</span>false<span style="color:#f92672">&lt;/DebugSymbols&gt;</span>
-    <span style="color:#f92672">&lt;DebugType&gt;</span>portable<span style="color:#f92672">&lt;/DebugType&gt;</span>
-    <span style="color:#f92672">&lt;Optimize&gt;</span>true<span style="color:#f92672">&lt;/Optimize&gt;</span>
-<span style="color:#f92672">&lt;/PropertyGroup&gt;</span></code></pre></div>
-<p>After that changes, <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a> was working. Out of curiosity, I compared the results before and after my changes and I was shocked.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">-----------------------------------------------------------------------------------</span>
-<span style="color:#a6e22e">| Serialize                                                                       |</span>
-<span style="color:#a6e22e">-----------------------------------------------------------------------------------</span>
-<span style="color:#a6e22e">|         |      Mean |     Error |    StdDev |      Gen0 |      Gen1 | Allocated |</span>
-<span style="color:#a6e22e">-----------------------------------------------------------------------------------</span>
-<span style="color:#a6e22e">| v5.2.1  |  539.5 us |  5.710 us |  5.062 us |    8.7891 |    0.9766 |  30.82 KB |</span>
-<span style="color:#a6e22e">| vlatest |  145.8 us |  1.671 us |  1.563 us |    8.3008 |    0.4883 |   30.7 KB |</span>
-<span style="color:#a6e22e">-----------------------------------------------------------------------------------</span></code></pre></div>
-<p><strong>Performance increased about 370% !</strong></p>
-
-<p>That was great news! I&rsquo;ve made pull request which you can see <a href="https://github.com/aaubry/YamlDotNet/pull/356">here</a> . My changes have been approved to <a href="https://www.nuget.org/packages/YamlDotNet/5.3.0">YamlDotNet 5.3.0</a> version.</p>
-
+	<span style="color:#f92672">&lt;DefineConstants</span><span style="color:#f92672">&gt;</span>$(DefineConstants);RELEASE;TRACE<span style="color:#f92672">&lt;/DefineConstants&gt;</span>
+	<span style="color:#f92672">&lt;DebugSymbols</span><span style="color:#f92672">&gt;</span>false<span style="color:#f92672">&lt;/DebugSymbols&gt;</span>
+	<span style="color:#f92672">&lt;DebugType</span><span style="color:#f92672">&gt;</span>portable<span style="color:#f92672">&lt;/DebugType&gt;</span>
+	<span style="color:#f92672">&lt;Optimize</span><span style="color:#f92672">&gt;</span>true<span style="color:#f92672">&lt;/Optimize&gt;</span>
+<span style="color:#f92672">&lt;/PropertyGroup&gt;</span>
+</code></pre></div><p>After that changes, <a href="https://benchmarkdotnet.org/">BenchmarkDotNet</a> was working. Out of curiosity, I compared the results before and after my changes and I was shocked.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">-----------------------------------------------------------------------------------</span>
+<span style="color:#a6e22e">| Serialize                                                                       |</span>
+<span style="color:#a6e22e">-----------------------------------------------------------------------------------</span>
+<span style="color:#a6e22e">|         |      Mean |     Error |    StdDev |      Gen0 |      Gen1 | Allocated |</span>
+<span style="color:#a6e22e">-----------------------------------------------------------------------------------</span>
+<span style="color:#a6e22e">| v5.2.1  |  539.5 us |  5.710 us |  5.062 us |    8.7891 |    0.9766 |  30.82 KB |</span>
+<span style="color:#a6e22e">| vlatest |  145.8 us |  1.671 us |  1.563 us |    8.3008 |    0.4883 |   30.7 KB |</span>
+<span style="color:#a6e22e">-----------------------------------------------------------------------------------</span>
+</code></pre></div><p><strong>Performance increased about 370% !</strong></p>
+<p>That was great news! I've made pull request which you can see <a href="https://github.com/aaubry/YamlDotNet/pull/356">here</a> . My changes have been approved to <a href="https://www.nuget.org/packages/YamlDotNet/5.3.0">YamlDotNet 5.3.0</a> version.</p>
 <h2 id="summary">Summary</h2>
-
 <p>The biggest lesson from this post, is that we always have to measure the performance of our changes, even for small ones. A seemingly insignificant change can spoil our performance.
 And last but not least, we should always use existing solutions. Their authors spent a lot of time, so that we could save our time. Instead of creating a new solution, simply use existing one, do not reinvent the wheel.</p>
 
@@ -237,7 +217,7 @@ And last but not least, we should always use existing solutions. Their authors s
         
         
         <li>
-            <a href="/2019/01/generates-disassembly-of-.net-functions/">Generates disassembly of .NET functions <i class="fa fa-chevron-circle-right"></i> </a>
+            <a href="/2019/01/generate-disassembly-of-.net-functions/">Generate disassembly of .NET functions <i class="fa fa-chevron-circle-right"></i> </a>
         </li>
         
     </ul>
@@ -303,7 +283,7 @@ And last but not least, we should always use existing solutions. Their authors s
 
 </main>
     <footer>
-        <h6>&copy; 2018 Wojciech Nagórski |
+        <h6>© 2018 Wojciech Nagórski |
             Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
             <a href="/index.xml">Subscribe</a></h6>
     </footer>

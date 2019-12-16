@@ -1,5 +1,5 @@
 ---
-title: "Generates disassembly of .NET functions"
+title: "Generate disassembly of .NET functions"
 description: "How to generate the disassembly of .NET functions and how to diff many of them."
 date: 2019-01-28T02:13:54-04:00
 year: "2019"
@@ -20,7 +20,7 @@ It was not so long ago when I added a new feature to [BenchmarkDotNet](https://g
 
 In this post I will be using the benchmark code from PR [dotnet/coreclr#13626](https://github.com/dotnet/coreclr/pull/13626) to [CoreCLR](https://github.com/dotnet/coreclr) repo. In metioned PR [@mikedn](https://github.com/mikedn) enables JIT to generate more efficient BT instruction in some situations. It is great example to show my exporter in action.
 
-##### Generates disassembly 
+## Generate disassembly 
 
 In [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet) you can easily generate disassembler for .NET function. All you need is add `[DisassemblyDiagnoser]` attribute to your benchmark, like below:
 
@@ -70,7 +70,7 @@ You can use this feature to understand why one solution is better then other or 
 
 Nothing new so far ;)
 
-##### Generates diff of two disassembly
+## Generates diff of two disassembly
 
 Sometimes your code works fast on newer version of .NET Core and works slow on the older one. That is quite common case, because .NET Core is improving very fast. In other case you probably would see performance regression and create issue to [CoreCLR](https://github.com/dotnet/coreclr) repo. 
 
@@ -154,11 +154,11 @@ In directory `BenchmarkDotNet.Artifacts\results` you will see also `ProjectName.
 +; Total bytes of code 27
 ```
 
-#### Limitations
+## Limitations
 
 Please note that this exporter internally uses the `git diff` command, so it requires a [GIT](https://git-scm.com/) installed on the system. 
 
-#### Summary	
+## Summary	
 
 Thanks to this report you can easily see what has been changed in the assembly code on various versions of .NET runtimes. You can also copy and paste it to GitHub. 
 
