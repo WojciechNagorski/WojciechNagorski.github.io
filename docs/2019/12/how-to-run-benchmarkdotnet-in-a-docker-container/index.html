@@ -5,11 +5,24 @@
 <head>
   <title>Wojciech Nagórski</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="In this post I would like to show how to run BenchmarkDotNet in a Docker container." />
-  <meta name="author" content="Wojciech Nagórski" /><meta name="generator" content="Hugo 0.51" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="In this post I would like to show how to run BenchmarkDotNet in a Docker container." />
+<meta name="author" content="Wojciech Nagórski" /><meta property="og:title" content="How to run BenchmarkDotNet in a Docker container" />
+<meta property="og:description" content="In this post I would like to show how to run BenchmarkDotNet in a Docker container." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/2019/12/how-to-run-benchmarkdotnet-in-a-docker-container/" />
+<meta property="article:published_time" content="2019-12-10T02:13:54-04:00" />
+<meta property="article:modified_time" content="2019-12-10T02:13:54-04:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="How to run BenchmarkDotNet in a Docker container"/>
+<meta name="twitter:description" content="In this post I would like to show how to run BenchmarkDotNet in a Docker container."/>
+
+<meta name="generator" content="Hugo 0.59.1" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
   <link rel="stylesheet" type="text/css" href="/css/styles.css" /><link rel='stylesheet' href='/css/custom.css'></head>
 
@@ -21,16 +34,31 @@
             </h1>
 
       <ul id="social-media">
-        
-        <li><a href="https://twitter.com/WojtekNagorski"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-         
-        <li><a href="https://www.linkedin.com/in/wojciech-nag%c3%b3rski-a3420493"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-         
-        <li><a href="https://github.com/WojciechNagorski"><i class="fab fa-github fa-lg" aria-hidden="true"></i></a></li>
-            
-        <li><a href="mailto:wojtpl2@gmail.com"><i class="fas fa-at fa-lg" aria-hidden="true"></i></a></li>
-        
-        <li><a href="/index.xml"><i class="fas fa-rss fa-lg" aria-hidden="true"></i></a></li>
+             <li>
+               <a href="mailto:wojtpl2@gmail.com" title="Email me">
+               <i class="fas fa-envelope fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://github.com/WojciechNagorski" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://twitter.com/WojtekNagorski" title="Twitter">
+               <i class="fab fa-twitter fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/wojciech-nag%c3%b3rski-a3420493" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="/index.xml" title="RSS">
+               <i class="fas fa-rss fa-lg"></i>
+               </a>
+             </li>
       </ul>
       
       <p><em>What I have done in .NET world.</em></p>
@@ -66,28 +94,26 @@
 
 
 
-
 <article>
 
     <h1>How to run BenchmarkDotNet in a Docker container</h1>
 
     
-        <aside>
+    <aside>
     <ul>
         <li>
             <time class="post-date" datetime="2019-12-10T02:13:54-04:00">Dec 10, 2019</time>
         </li>
         
-        
         <li>
-            Categories: 
+            Categories:
             <em>
                 
                     
-                    <a href="/categories/opensource/">OpenSource</a>
+                    <a href="/categories/opensource">OpenSource</a>
                 
                     , 
-                    <a href="/categories/benchmarkdotnet/">BenchmarkDotNet</a>
+                    <a href="/categories/benchmarkdotnet">BenchmarkDotNet</a>
                 
             </em>
         </li>
@@ -98,18 +124,21 @@
             <em>
                 
                     
-                    <a href="/tags/benchmarkdotnet/">#BenchmarkDotNet</a>
+                    <a href="/tags/benchmarkdotnet">#BenchmarkDotNet</a>
                 
                     , 
-                    <a href="/tags/docker/">#Docker</a>
+                    <a href="/tags/docker">#Docker</a>
                 
             </em>
         </li>
         
 
-        <li>8 min read</li>
+        <li>8 minutes read</li>
     </ul>
 </aside>
+
+    
+
     
 
     
@@ -144,16 +173,17 @@ I will be using .NET Core CLI, because it works on most systems.</p>
 {
     <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Program</span>
     {
-        <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> Main(<span style="color:#66d9ef">string</span><span style="color:#a6e22e">[]</span> args)
+        <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> Main(<span style="color:#66d9ef">string</span>[] args)
         {
             BenchmarkSwitcher.FromAssembly(<span style="color:#66d9ef">typeof</span>(Program).Assembly).Run(args);
         }
     }
-}</code></pre></div>
+}
+</code></pre></div>
 <p>Then we need to create a new <code>.cs</code> file, e. g. <code>MyBenchmark.cs</code> that will contain the benchmark. As you can see below, the <code>MyBenchmark</code> class contains the <code>Sum</code> method which is marked with the <code>[Benchmark]</code> attribute. And that&rsquo;s all.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#">    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyBenchmark</span>
-    {<span style="color:#a6e22e">
-</span><span style="color:#a6e22e">        [Benchmark]</span>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#">	<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyBenchmark</span>
+    {
+<span style="color:#a6e22e">        [Benchmark]</span>
         <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> Sum()
         {
             <span style="color:#66d9ef">int</span> result = <span style="color:#ae81ff">0</span>;
@@ -164,7 +194,8 @@ I will be using .NET Core CLI, because it works on most systems.</p>
 
             <span style="color:#66d9ef">return</span> result;
         }
-    }</code></pre></div>
+    }
+</code></pre></div>
 <p>Now we can run our project. If you are inside the project directory, just run:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#a6e22e">dotnet run -c Release -- --filter *Sum*</span></code></pre></div>
 <p>If you are in the root directory, where the <code>sln</code> file is located, you should indicate which project you want to run:</p>
@@ -355,7 +386,8 @@ I will be using .NET Core CLI, because it works on most systems.</p>
     </ul>
 </section>
     
-		<div id="disqus_thread"></div>
+    
+        <div id="disqus_thread"></div>
 <script type="application/javascript">
     var disqus_config = function () {
     
@@ -383,9 +415,9 @@ I will be using .NET Core CLI, because it works on most systems.</p>
 
 </main>
     <footer>
-        <h6>&copy; 2018 Wojciech Nagórski |
+        <h6>&copy; 2020 Wojciech Nagórski |
             Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
-            <a href="/index.xml">Subscribe</a></h6>
+            <a href="/index.xml">Subscribe </a></h6>
     </footer>
 </div>
 <script src="/js/scripts.js"></script>
@@ -406,3 +438,4 @@ if (!doNotTrack) {
 </body>
 
 </html>
+

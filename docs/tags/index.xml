@@ -1,73 +1,1065 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 
-   <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-     <channel>
-       <title>Tags on Wojciech Nagórski</title>
-       <link>/tags/</link>
-       <description>Recent content in Tags on Wojciech Nagórski</description>
-       <generator>Hugo -- gohugo.io</generator>
-       <language>en-us</language>
-       <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
-       <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
-       <copyright>&amp;copy; 2018 Wojciech Nagórski</copyright>
-       <lastBuildDate>Tue, 10 Dec 2019 02:13:54 -0400</lastBuildDate>
-       
-           <atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
-       
-       
-       <item>
-         <title>Benchmarkdotnet</title>
-         <link>/tags/benchmarkdotnet/</link>
-         <pubDate>Tue, 10 Dec 2019 02:13:54 -0400</pubDate>
-         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
-         <guid>/tags/benchmarkdotnet/</guid>
-         <description></description>
-       </item>
-       
-       <item>
-         <title>Disassembly</title>
-         <link>/tags/disassembly/</link>
-         <pubDate>Mon, 28 Jan 2019 02:13:54 -0400</pubDate>
-         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
-         <guid>/tags/disassembly/</guid>
-         <description></description>
-       </item>
-       
-       <item>
-         <title>Docker</title>
-         <link>/tags/docker/</link>
-         <pubDate>Tue, 10 Dec 2019 02:13:54 -0400</pubDate>
-         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
-         <guid>/tags/docker/</guid>
-         <description></description>
-       </item>
-       
-       <item>
-         <title>Firstpullrequest</title>
-         <link>/tags/firstpullrequest/</link>
-         <pubDate>Tue, 11 Dec 2018 11:16:00 -0400</pubDate>
-         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
-         <guid>/tags/firstpullrequest/</guid>
-         <description></description>
-       </item>
-       
-       <item>
-         <title>Nativememory</title>
-         <link>/tags/nativememory/</link>
-         <pubDate>Mon, 30 Sep 2019 02:13:54 -0400</pubDate>
-         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
-         <guid>/tags/nativememory/</guid>
-         <description></description>
-       </item>
-       
-       <item>
-         <title>Yamldotnet</title>
-         <link>/tags/yamldotnet/</link>
-         <pubDate>Tue, 18 Dec 2018 02:11:01 -0100</pubDate>
-         <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
-         <guid>/tags/yamldotnet/</guid>
-         <description></description>
-       </item>
-       
-     </channel>
-   </rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+ <channel>
+   <title>Tags on Wojciech Nagórski</title>
+   <link>/tags/</link>
+   <description>Recent content in Tags on Wojciech Nagórski</description>
+   <generator>Hugo -- gohugo.io</generator>
+   <language>en-us</language>
+   <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
+   <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
+   <copyright>&amp;copy; 2020 Wojciech Nagórski</copyright>
+   <lastBuildDate>Tue, 10 Dec 2019 02:13:54 -0400</lastBuildDate>
+   
+       <atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+   
+   
+     <item>
+       <title>How to run BenchmarkDotNet in a Docker container</title>
+       <link>/2019/12/how-to-run-benchmarkdotnet-in-a-docker-container/</link>
+       <pubDate>Tue, 10 Dec 2019 02:13:54 -0400</pubDate>
+       <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+       <guid>/2019/12/how-to-run-benchmarkdotnet-in-a-docker-container/</guid>
+       <description>
+
+&lt;p&gt;The BenchmarkDotNet library is great for creating benchmarks that can be run on a local machine in a very simple way. But what if you wanted to run them in a Docker container with a different operating system or using a different version of .Net Core. In this post I would like to show you how to dockerize your benchmarks.&lt;/p&gt;
+
+&lt;p&gt;Firstly, a new solution and a project need to be created. To do this, follow the instructions below.
+I will be using .NET Core CLI, because it works on most systems.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# 1. create new &amp;#34;BenchmarkDotNetInDocker.sln&amp;#34; inside the “BenchmarkDotNetInDocker” directory.  &lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet new sln --name BenchmarkDotNetInDocker --output BenchmarkDotNetInDocker &lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# 2. navigate to the previously created directory.  &lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;cd BenchmarkDotNetInDocker &lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# 3. create a new console project with the name of “BenchmarkDotNetInDocker”. &lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet new console --name BenchmarkDotNetInDocker &lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# 4. add the previously created project to the sln file. &lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet sln add .\BenchmarkDotNetInDocker\BenchmarkDotNetInDocker.csproj &lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# 5. add the BenchmarkDotNet nuget package to our project. &lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet add .\BenchmarkDotNetInDocker\BenchmarkDotNetInDocker.csproj package BenchmarkDotNet &lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# 6. restore nuget packages &lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet restore &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now our project is ready to add the first benchmark, but before we do it, we need to change the &lt;code&gt;Program.cs&lt;/code&gt; file, as shown below. This code uses the &lt;code&gt;BenchmarkSwitcher&lt;/code&gt; class which allows us to choose a benchmark to run during the execution.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; System;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Attributes;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Running;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; BenchmarkDotNetInDocker
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Program&lt;/span&gt;
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Main(&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;[] args)
+        {
+            BenchmarkSwitcher.FromAssembly(&lt;span style=&#34;color:#66d9ef&#34;&gt;typeof&lt;/span&gt;(Program).Assembly).Run(args);
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then we need to create a new &lt;code&gt;.cs&lt;/code&gt; file, e. g. &lt;code&gt;MyBenchmark.cs&lt;/code&gt; that will contain the benchmark. As you can see below, the &lt;code&gt;MyBenchmark&lt;/code&gt; class contains the &lt;code&gt;Sum&lt;/code&gt; method which is marked with the &lt;code&gt;[Benchmark]&lt;/code&gt; attribute. And that&amp;rsquo;s all.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MyBenchmark&lt;/span&gt;
+    {
+&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark]&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Sum()
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; result = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;; i++)
+            {
+                result += i;
+            }
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; result;
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now we can run our project. If you are inside the project directory, just run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -- --filter *Sum*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If you are in the root directory, where the &lt;code&gt;sln&lt;/code&gt; file is located, you should indicate which project you want to run:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -p .\BenchmarkDotNetInDocker\BenchmarkDotNetInDocker.csproj -- --filter *Sum*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The &lt;code&gt;--filter *Sum*&lt;/code&gt; parameter specifies which benchmarks should be run. In this particular case, we want to run all benchmarks that contain &lt;code&gt;Sum&lt;/code&gt; inside their names.&lt;/p&gt;
+
+&lt;p&gt;Having run this command, your benchmark will start. When it finishes, you will see the summary:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[...]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;// * Summary *&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;v0.12.0, OS=Windows 10.0.16299.1387 (1709/FallCreatorsUpdate/Redstone3)&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Intel Core i7-4770 CPU 3.40GHz (Haswell), 1 CPU, 8 logical and 4 physical cores&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Frequency&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;3312641 Hz, Resolution=301.8739 ns, Timer=TSC&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;.NET Core SDK&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;3.0.100
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  [Host]     : .NET Core 3.0.0 (CoreCLR 4.700.19.46205, CoreFX 4.700.19.46214), X64 RyuJIT
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  DefaultJob : .NET Core 3.0.0 (CoreCLR 4.700.19.46205, CoreFX 4.700.19.46214), X64 RyuJIT&lt;/span&gt;
+
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;| Method |     Mean |    Error |   StdDev |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|------- |---------:|---------:|---------:|&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|    Sum | 33.10 ns | 0.142 ns | 0.126 ns |&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;[...]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Please note that the summary includes information about the operating system, in my case, it was &lt;code&gt;Windows 10.0.16299.1387 (1709/FallCreatorsUpdate/Redstone3)&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;running-benchmarkdotnet-in-a-docker-container&#34;&gt;Running BenchmarkDotNet in a Docker container&lt;/h2&gt;
+
+&lt;p&gt;Now we have to add two additional files in the root directory, where the &lt;code&gt;sln&lt;/code&gt; file is located. The first one will be a text document called &lt;code&gt;Dockerfile&lt;/code&gt; and will contain all the commands to assemble a docker image. You can see my &lt;code&gt;Dockerfile&lt;/code&gt; here:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;FROM mcr.microsoft.com/dotnet/core/sdk:3.1&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;WORKDIR /src&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;COPY . .&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;RUN dotnet restore&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;RUN dotnet build &amp;#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;#34; -c Release -o /src/bin&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;RUN dotnet publish &amp;#34;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;#34; -c Release -o /src/bin/publish&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;WORKDIR /src/bin/publish&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;ENTRYPOINT [&amp;#34;dotnet&amp;#34;, &amp;#34;BenchmarkDotNetInDocker.dll&amp;#34;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The following is a description of &lt;code&gt;Dockerfile&lt;/code&gt;, line by line:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;FROM mcr.microsoft.com/dotnet/core/sdk:3.1&lt;/code&gt; - this line means that an image with .NET Core SDK 3.1 will be used. We should use the SDK version and not a Runtime one because BencharkDotNet generates, builds and runs the benchmarked projects. The full list of available images can be found on &lt;a href=&#34;https://hub.docker.com/_/microsoft-dotnet-core-sdk/&#34;&gt;Docker Hub&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;WORKDIR /src&lt;/code&gt; - sets the working direcory to &lt;code&gt;/src&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;COPY . .&lt;/code&gt; - Copies all files except ignored ones into the container.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RUN dotnet restore&lt;/code&gt; - restores the dependencies and tools of the project.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RUN dotnet build &amp;quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;quot; -c Release -o /src/bin&lt;/code&gt; - builds the project in the &lt;code&gt;Release&lt;/code&gt; mode into the &lt;code&gt;/src/bin&lt;/code&gt; directory.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;RUN dotnet publish &amp;quot;BenchmarkDotNetInDocker/BenchmarkDotNetInDocker.csproj&amp;quot; -c Release -o /src/bin/publish&lt;/code&gt; - publishs the project in the &lt;code&gt;Release&lt;/code&gt; mode into the &lt;code&gt;/src/bin/publish&lt;/code&gt; location.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;WORKDIR /src/bin/publish&lt;/code&gt; - sets the working direcory to &lt;code&gt;/src/bin/publish&lt;/code&gt; where you can find the published application.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ENTRYPOINT [&amp;quot;dotnet&amp;quot;, &amp;quot;BenchmarkDotNetInDocker.dll&amp;quot;]&lt;/code&gt; - allows you to configure a container entrypoint. In this case it is the &lt;code&gt;dotnet BenchmarkDotNetInDocker.dll&lt;/code&gt; command.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The second file will be the &lt;code&gt;.dockerignore&lt;/code&gt; file that will allow you to exclude files from the docker image like a &lt;code&gt;.gitignore&lt;/code&gt; file allow you to exclude files from your git repository.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# .dockerignore&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Dockerfile&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;[b|B]in&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;[O|o]bj&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now we can build our new docker image using the following command. We use the &lt;code&gt;-t&lt;/code&gt; parameter to name the image, in this case &lt;code&gt;benchmarkdotnet&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker build -t benchmarkdotnet .&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Having created the docker image with our project, we can run it using command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker run -it benchmarkdotnet --filter *Sum* &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You should see the output log that contains information about the operating system, in this case it is &lt;code&gt;OS=debian 10&lt;/code&gt;, and information about the .NET Core version, here - &lt;code&gt;3.1.0&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;// * Summary *&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;v0.12.0, OS=debian 10&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Intel Core i7-4770 CPU 3.40GHz (Haswell), 1 CPU, 2 logical and 2 physical cores&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;.NET Core SDK&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;3.1.100
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  [Host]     : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;  DefaultJob : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT&lt;/span&gt;
+
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;| Method |     Mean |    Error |   StdDev |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|------- |---------:|---------:|---------:|&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|    Sum | 32.65 ns | 0.154 ns | 0.137 ns |&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;All parameters following the name of the docker image go directly to our application. In this case the &lt;code&gt;--filter *Sum*&lt;/code&gt; parameter goes to our &lt;code&gt;Program.Main(args)&lt;/code&gt; method and then to the &lt;code&gt;BenchmarkSwitcher&lt;/code&gt; class which I mentioned earlier. Similarly, we can add additional parameters, such as &lt;code&gt;--memory&lt;/code&gt; that enables &lt;code&gt;MemoryDiagnoser&lt;/code&gt; and prints memory statistics.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker run -it benchmarkdotnet --filter *Sum* --memory&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The command above runs our benchmark inside a Docker container and adds additional columns: &amp;ldquo;Gen 0&amp;rdquo;, &amp;ldquo;Gen 1&amp;rdquo;, &amp;ldquo;Gen 2&amp;rdquo;, and &amp;ldquo;Allocated&amp;rdquo;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;| Method |     Mean |    Error |   StdDev | Gen 0 | Gen 1 | Gen 2 | Allocated |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|------- |---------:|---------:|---------:|------:|------:|------:|----------:|&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|    Sum | 34.35 ns | 0.334 ns | 0.296 ns |     - |     - |     - |         - |&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can also print all the available benchmarks, using either of the following parameters: &lt;code&gt;--list tree&lt;/code&gt; and &lt;code&gt;--list flat&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker run -it benchmarkdotnet --list tree&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The following output will be printed when the above command has been finished:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNetInDocker&lt;/span&gt;
+ &lt;span style=&#34;color:#a6e22e&#34;&gt;└─Benchmark&lt;/span&gt;
+    &lt;span style=&#34;color:#a6e22e&#34;&gt;└─Sum&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;where-are-the-artifacts&#34;&gt;Where are the artifacts?&lt;/h2&gt;
+
+&lt;p&gt;We are currently able to run any benchmark with any set of options. But where are the resulting files? The answer is simple, they are inside the docker container. There are methods of getting them out of the container, but a better approach is to generate them directly into a local directory. For this purpose, we will use the docker volumes. All we have to do is to add the &lt;code&gt;-v local-path:container-path&lt;/code&gt; parameter, as shown below:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker run -v c:\BenchmarkDotNet.ArtifactsFromDocker:/src/bin/publish/BenchmarkDotNet.Artifacts -it benchmarkdotnet --filter *Sum* -m&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;After excecution finishes, all artifacts should be in the &lt;code&gt;c:\BenchmarkDotNet.ArtifactsFromDocker&lt;/code&gt; directory.&lt;/p&gt;
+
+&lt;h2 id=&#34;run-benchmarks-on-different-linux-distributions-or-different-net-core-versions&#34;&gt;Run benchmarks on different Linux distributions or different .NET Core versions&lt;/h2&gt;
+
+&lt;p&gt;In Dockerfile above we used the &lt;code&gt;FROM mcr.microsoft.com/dotnet/core/sdk:3.1&lt;/code&gt; instruction which gave us Debian 10 with .NET Core 3.1. But what if we wanted to change the operating system or the .NET Core version?&lt;/p&gt;
+
+&lt;p&gt;The &lt;code&gt;FROM&lt;/code&gt; instruction has the syntax of: &lt;code&gt;FROM &amp;lt;image&amp;gt;[:&amp;lt;tag&amp;gt;]&lt;/code&gt;. Therefore, in this particular case we used the &lt;code&gt;mcr.microsoft.com/dotnet/core/sdk&lt;/code&gt; image and the &lt;code&gt;3.1&lt;/code&gt; tag. The tag determined the .NET Core version. So if you want use .NET Core 2.2, just use the &lt;code&gt;2.2&lt;/code&gt; tag instead. Using different tag suffixes, you can also change the operating system. The following table contains example tags for different operating systems.&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Tag&lt;/th&gt;
+&lt;th&gt;OS Version&lt;/th&gt;
+&lt;th&gt;.NET Core Version&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;3.1 or 3.1-buster&lt;/td&gt;
+&lt;td&gt;Debian 10&lt;/td&gt;
+&lt;td&gt;.NET Core 3.1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;3.1-alpine&lt;/td&gt;
+&lt;td&gt;Alpine 3.10&lt;/td&gt;
+&lt;td&gt;.NET Core 3.1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;3.1-bionic&lt;/td&gt;
+&lt;td&gt;Ubuntu 18.04&lt;/td&gt;
+&lt;td&gt;.NET Core 3.1&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;2.2 or 2.2-stretch&lt;/td&gt;
+&lt;td&gt;Debian 9&lt;/td&gt;
+&lt;td&gt;.NET Core 2.2&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;2.2-alpine&lt;/td&gt;
+&lt;td&gt;Alpine 3.9&lt;/td&gt;
+&lt;td&gt;.NET Core 2.2&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;2.2-bionic&lt;/td&gt;
+&lt;td&gt;Ubuntu 18.04&lt;/td&gt;
+&lt;td&gt;.NET Core 2.2&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&amp;hellip;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;All possible tags can be found on &lt;a href=&#34;https://hub.docker.com/_/microsoft-dotnet-core-sdk/&#34;&gt;Docker Hub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Of course, .NET Core can be run on other Linux distributions for which Microsoft does not publish official docker images. But this topic is outside of this article’s scope. If you find it problematic, please let me know in the comments below, and I will consider writing a post with some additional information on the topic.&lt;/p&gt;
+
+&lt;h2 id=&#34;additional-information&#34;&gt;Additional information&lt;/h2&gt;
+
+&lt;p&gt;When you run the benchmark project in Docker, you should get a message:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;Failed to set up high priority. Make sure you have the right permissions. Message: Permission denied&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;It means that BenchmarkDotNet requires additional permissions. Fortunately, you can use a “privileged” container.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;docker run --privileged -it benchmarkdotnet --filter *Sum*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can find the full description of this mode in the Docker &lt;a href=&#34;https://docs.docker.com/engine/reference/run/&#34;&gt;documentation&lt;/a&gt;. It states that:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Docker will enable access to all devices on the host as well as set some configuration in AppArmor or SELinux to allow the container nearly all the same access to the host as processes running outside containers on the host.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;limitations&#34;&gt;Limitations&lt;/h2&gt;
+
+&lt;p&gt;This method should be used exclusively for development purposes, unless your production environment clearly requires the application to run within docker. You should always carry out final performance tests in the production environment.&lt;/p&gt;
+
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;In this article, I have shown how to run BenchmarkDotNet inside a Docker container. With this information you can benchmark your code for different systems and different versions of .NET Core easily.&lt;/p&gt;
+
+&lt;p&gt;As I am going to write about profiling applications on Linux using BenchmarkDotNet as soon as I implement the &lt;code&gt;EventPipeProfiler&lt;/code&gt; functionality, this post will come in handy in the nearest future&amp;hellip; I hope. And you will be able to profile your benchmark inside a Docker container too. If you are already curious about how the profiling is going to function, you can follow PR &lt;a href=&#34;PR.https://github.com/dotnet/BenchmarkDotNet/pull/1321/&#34;&gt;dotnet/BenchmarkDotNet#1321&lt;/a&gt;.&lt;/p&gt;
+</description>
+     </item>
+   
+     <item>
+       <title>Using native DLL and resource files in BenchmarkDotNet projects</title>
+       <link>/2019/09/using-native-dll-and-resource-files-in-benchmarkdotnet-projects/</link>
+       <pubDate>Mon, 30 Sep 2019 02:13:54 -0400</pubDate>
+       <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+       <guid>/2019/09/using-native-dll-and-resource-files-in-benchmarkdotnet-projects/</guid>
+       <description>
+
+&lt;p&gt;In a previous &lt;a href=&#34;/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/&#34;&gt;post&lt;/a&gt;, I described the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; which I implemented in the &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; library. It caused that I got many questions about using native DLL files in benchmark projects. Many people want to use &lt;code&gt;post-build&lt;/code&gt; events but they do not work. There is an issue &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/946&#34;&gt;dotnet/BenchmarkDotNet#946&lt;/a&gt;. I know a better solution, so I decided to describe this topic.&lt;/p&gt;
+
+&lt;p&gt;In this post, I would like to show you, how to use native DLL or resource files in benchmark projects.&lt;/p&gt;
+
+&lt;p&gt;If you only need solution, you can navigate to the &lt;a href=&#34;#solution&#34;&gt;solution&lt;/a&gt; section, but if you would like to understand the problem you need to read the whole article.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-story&#34;&gt;The story&lt;/h2&gt;
+
+&lt;p&gt;When you run your benchmark project, the BenchmarkDotNet generates an isolated project that references to your project. This generated project is built and run, during each run of your benchmark. Let&amp;rsquo;s create a really simple benchmark project that shows us this mechanism.&lt;/p&gt;
+
+&lt;p&gt;In the beginning, we have to create a new project. I&amp;rsquo;m going to use &lt;a href=&#34;https://github.com/dotnet/cli&#34;&gt;dotnet CLI&lt;/a&gt;, so that you can follow the steps below on Windows, Linux or macOs.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;mkdir UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;cd UsingResourcesWithBenchmarkDotNet&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet new console&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then we need to add the BenchmarkDotNet nuget to this project.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet add package BenchmarkDotNet&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;After configuring the project, we can implement our benchmark. Below is a &lt;code&gt;Program.cs&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; System;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Attributes;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Running;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; UsingResourcesWithBenchmarkDotNet
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Program&lt;/span&gt;
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Main(&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;[] args) =&amp;gt;
+            BenchmarkSwitcher.FromAssembly(&lt;span style=&#34;color:#66d9ef&#34;&gt;typeof&lt;/span&gt;(Program).Assembly).Run(args);
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Benchmark&lt;/span&gt;
+    {
+&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark]&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Sum()
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; result = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;; i++)
+            {
+                result += i;
+            }
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; result;
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now we can run this project with a &lt;code&gt;--keepfiles&lt;/code&gt; option. If you add this option, all auto-generated files will be kept after running the benchmark.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -- --filter *Sum* --keepfiles&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now, &lt;code&gt;bin&lt;/code&gt; directory should contain all generated files. In our case, we were run only one benchmark so all files should be in &lt;code&gt;DefaultJob&lt;/code&gt; directory.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;λ cd bin\Release\netcoreapp3.0\DefaultJob&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;λ ls  # or dir for windows console&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Autogenerated.csproj  DefaultJob.bat  DefaultJob.notcs  bin/  obj/&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As you can see, BenchmarkDotNet generates a new project for us, called&lt;code&gt;BenchmarkDotNet.Autogenerated.csproj&lt;/code&gt;. For instance, when you want to run your benchmark for many frameworks, BenchmarkDotNet will generate many projects for you. Each generated project has its own &lt;code&gt;bin&lt;/code&gt; directory and is run from this location.&lt;/p&gt;
+
+&lt;p&gt;Since BenchmarkDotNet does not run benchmarks from default &lt;code&gt;bin&lt;/code&gt; directory, you can not use any recourses from there. Therefore, &lt;code&gt;post-build&lt;/code&gt; events do not work because they are running during building the benchmark project, not auto-generated projects.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;The solution is really simple. Instead of &lt;code&gt;post-build&lt;/code&gt; events, you should use &lt;a href=&#34;https://docs.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-items?view=vs-2019#none&#34;&gt;None or Compile project item&lt;/a&gt;. Below you can see an example of copying &lt;code&gt;NativeDll.dll&lt;/code&gt; from &lt;code&gt;solutionDir\x64\Release&lt;/code&gt; directory into &lt;code&gt;bin&lt;/code&gt; directory of the benchmark project, as well as into &lt;code&gt;bin&lt;/code&gt; directories of all auto-generated projects that refer to the benchmark project. If you set &lt;code&gt;Visible&lt;/code&gt; to true, then the file will be visible in the solution explorer.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\x64\$(Configuration)\NativeDll.dll&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;NativeDll.dll&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;What&amp;rsquo;s more, you do not have to add file by file. You can also copy the entire directory using this method.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\Resources\**\*.*&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can also copy all files of a given type, for example, all DLL files from a directory:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;ItemGroup&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;None&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Include=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;$(MSBuildThisFileDirectory)..\Resources\**\*.dll&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Link&amp;gt;&lt;/span&gt;%(Directory)\%(Filename)%(Extension)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Link&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;CopyToOutputDirectory&amp;gt;&lt;/span&gt;PreserveNewest&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/CopyToOutputDirectory&amp;gt;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Visible&amp;gt;&lt;/span&gt;True&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Visible&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/None&amp;gt;&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/ItemGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;If you are creating a project with benchmarks using BenchmarkDotNet, you should include additional files as if you were creating a nuget package.&lt;/p&gt;
+
+&lt;p&gt;If you think this post is useful, let me know in the comments below.&lt;/p&gt;
+</description>
+     </item>
+   
+     <item>
+       <title>Analyzing native memory allocation with BenchmarkDotNet</title>
+       <link>/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/</link>
+       <pubDate>Thu, 08 Aug 2019 02:13:54 -0400</pubDate>
+       <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+       <guid>/2019/08/analyzing-native-memory-allocation-with-benchmarkdotnet/</guid>
+       <description>
+
+&lt;p&gt;The &lt;strong&gt;&lt;code&gt;NativeMemoryProfiler&lt;/code&gt;&lt;/strong&gt; is a new diagnoser for &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; that I implemented in version 0.12.0. In this post, you will learn how to analyze native memory allocations in your code. It sounds like a difficult topic, but trust me, you can do it really easily with BenchmarkDotNet.&lt;/p&gt;
+
+&lt;h2 id=&#34;the-story&#34;&gt;The story&lt;/h2&gt;
+
+&lt;p&gt;Not so long ago, I got a task that was difficult for me. To be honest, I did not know where to start. I like this kind of tasks because they are a challenge and a good opportunity to learn something new. I had to create an application to validate native DLLs that were created by other companies. This application should call all functions, check how long it takes to execute all functions and check if functions do not allocate native memory. The last thing was the hardest for me.&lt;/p&gt;
+
+&lt;p&gt;I thought I would find a solution in some open source project. I started from BenchmarkDotNet which is my favorite .NET library for benchmarking. To my surprise, it turned out that BenchmarkDotNet did not support tracking native allocations. I even found an issue &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/457&#34;&gt;dotnet/BenchmarkDotNet#457&lt;/a&gt; that had labels: &lt;code&gt;help wanted&lt;/code&gt; and &lt;code&gt;up-for-grabs&lt;/code&gt;. Luckily in this issue, I found information that &lt;a href=&#34;https://github.com/kayle&#34;&gt;@kayle&lt;/a&gt; added support for tracking type of native memory allocations in &lt;a href=&#34;https://github.com/microsoft/perfview&#34;&gt;PerfView&lt;/a&gt;. Here is his PR &lt;a href=&#34;https://github.com/microsoft/perfview/pull/857&#34;&gt;microsoft/perfview#857&lt;/a&gt;. Thanks to it, I had all information to solve my problem but also I was able to make &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; for BenchmarkDotNet. So I did it.&lt;/p&gt;
+
+&lt;h2 id=&#34;demo&#34;&gt;Demo&lt;/h2&gt;
+
+&lt;p&gt;Bellow is a sample benchmark which uses the &lt;code&gt;Marshal.AllocHGlobal&lt;/code&gt; and &lt;code&gt;Marshal.FreeHGlobal&lt;/code&gt; methods to allocate and free native memory.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[ShortRunJob]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;[NativeMemoryProfiler]&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- This attribute enables the profiler for native allocation.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[MemoryDiagnoser]&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroNativeMemory&lt;/span&gt;
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Size = &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// Greater value could cause System.OutOfMemoryException for a test with memory leaks.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; ArraySize = Size * Marshal.SizeOf(&lt;span style=&#34;color:#66d9ef&#34;&gt;typeof&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;));
+&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;unsafe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; AllocHGlobal()
+    {
+        IntPtr unmanagedHandle = Marshal.AllocHGlobal(ArraySize);
+        Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt; unmanaged = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt;(unmanagedHandle.ToPointer(), ArraySize);
+        Marshal.FreeHGlobal(unmanagedHandle);
+    }
+&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;unsafe&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; AllocHGlobalWithLeaks()
+    {
+        IntPtr unmanagedHandle = Marshal.AllocHGlobal(ArraySize);
+        Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt; unmanaged = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Span&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt;(unmanagedHandle.ToPointer(), ArraySize);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As you can see, all you have to do to enable the profiler for native allocations is to add the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; attribute to your benchmark.&lt;/p&gt;
+
+&lt;p&gt;If you use &lt;code&gt;ManualConfig&lt;/code&gt; you can add this profiler this way:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Config&lt;/span&gt; : ManualConfig
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; Config()
+    {
+        Add(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; NativeMemoryProfiler()); &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- adding profiler for native allocation
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;//Your configuration
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If you don&amp;rsquo;t want to use this profiler every time, you can also enable it from the command line using &lt;code&gt;-p NativeMemory&lt;/code&gt; or &lt;code&gt;--profiler NativeMemory&lt;/code&gt; parameter. This allows you to enable the &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; on demand.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# for .Net Framework application:&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;NativeMemorySample.exe --profiler NativeMemory&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# for .Net Core application:&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet NativeMemorySample.dll --profiler NativeMemory &lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# or run benchmark from the directory where is your csproj:&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -f netcoreapp2.1 -- --filter *IntroNativeMemory.Alloc* --profiler NativeMemory&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;After running the above example code, you will see the results:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Method&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Mean&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Error&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;StdDev&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Gen 0&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Gen 1&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Gen 2&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Allocated&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Allocated native memory&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Native memory leak&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;AllocHGlobal&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;78.60 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;10.55 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.578 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;80 B&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;AllocHGlobal WithLeaks&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;101.17 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;150.67 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;8.259 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;80 B&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;80 B&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;As you can see, &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; adds extra columns: &amp;ldquo;Allocated native memory&amp;rdquo; and &amp;ldquo;Native memory leak&amp;rdquo;, to the summary table. In output, you can also find additional information from this diagnoser. This log contains useful information, e.g.: the location of the exported &lt;code&gt;*.etl&lt;/code&gt; files or the number of allocated and not deallocated objects.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-perl&#34; data-lang=&#34;perl&#34;&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; Diagnostic Output &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; NativeMemoryProfiler &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;
+Exported &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; trace file(s)&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt; Example:
+C:&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;Work&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;NativeMemorySample&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;NativeMemorySample&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;BenchmarkDotNet&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;Artifacts&lt;span style=&#34;color:#f92672&#34;&gt;\&lt;/span&gt;NativeMemorySample&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;IntroNativeMemory&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AllocHGlobal&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;20190806&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;115958&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;etl
+
+&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+IntroNativeMemory&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AllocHGlobal: ShortRun(IterationCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, LaunchCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, WarmupCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;)
+&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+Native memory allocated per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt; B
+
+&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+IntroNativeMemory&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;AllocHGlobalWithLeaks: ShortRun(IterationCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, LaunchCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, WarmupCount&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;)
+&lt;span style=&#34;color:#f92672&#34;&gt;--------------------&lt;/span&gt;
+Native memory allocated per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt; B
+Native memory leak per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;80&lt;/span&gt; B
+Count of &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; deallocated object: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+
+&lt;span style=&#34;color:#e6db74&#34;&gt;//&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; Diagnostic Output &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; MemoryDiagnoser &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;the-tracking-type-of-native-memory-allocation&#34;&gt;The tracking type of native memory allocation&lt;/h2&gt;
+
+&lt;p&gt;Currently, BenchmarkDotNet does not print information about native memory allocation types, but &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; saves this information in &lt;code&gt;*.etl&lt;/code&gt; files. As I mentioned earlier, thanks to &lt;a href=&#34;https://github.com/kayle&#34;&gt;@kayle&lt;/a&gt; and his great PR &lt;a href=&#34;https://github.com/microsoft/perfview/pull/857&#34;&gt;microsoft/perfview#857&lt;/a&gt;, you can easily get type names using PerfView.&lt;/p&gt;
+
+&lt;p&gt;If the benchmark uses your native DLL, you can check what types were used. Here is an example C++ code of a native DLL:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;_Point&lt;/span&gt; {
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; X;
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Y;
+}Point;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;__declspec&lt;/span&gt;(dllexport) Point&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; AllocateArrayOfPoint(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; size)
+{
+	Point&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; a &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Point[size];
+    
+	&lt;span style=&#34;color:#75715e&#34;&gt;// Initialize all elements.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;	&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; size; i&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) {
+		a[i].X &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; i;      
+		a[i].Y &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+	}
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; a;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;__declspec&lt;/span&gt;(dllexport) &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; DeallocateArrayOfPoint(Point&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; ptr)
+{
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;delete&lt;/span&gt;[] ptr;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The&lt;code&gt;AllocateArrayOfPoint&lt;/code&gt; method allocates an array of &lt;code&gt;Point&lt;/code&gt; and &lt;code&gt;DeallocateArrayOfPoint&lt;/code&gt; deletes this array.&lt;/p&gt;
+
+&lt;p&gt;In C#, you need to create a wrapper for this DLL:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[StructLayout(LayoutKind.Sequential)]&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Point&lt;/span&gt;
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; X;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; Y;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;NativeDll&lt;/span&gt;
+{
+&lt;span style=&#34;color:#a6e22e&#34;&gt;    [DllImport(&amp;#34;NativeDll.dll&amp;#34;)]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;extern&lt;/span&gt; IntPtr AllocateArrayOfPoint(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; count);
+&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [DllImport(&amp;#34;NativeDll.dll&amp;#34;)]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;extern&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; DeallocateArrayOfPoint(IntPtr ptr);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Your benchmark can look like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[ShortRunJob]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;[NativeMemoryProfiler]&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroNativeMemoryFromNativeDll&lt;/span&gt;
+{
+&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; AllocAndFreeNativeStruct()
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; ptr = NativeDll.AllocateArrayOfPoint(&lt;span style=&#34;color:#ae81ff&#34;&gt;200&lt;/span&gt;);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; result = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;unsafe&lt;/span&gt;
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; bytes = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Span&amp;lt;Point&amp;gt;((Point*)ptr, &lt;span style=&#34;color:#ae81ff&#34;&gt;200&lt;/span&gt;);
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; item &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; bytes)
+            {
+                result += item.X + item.Y;
+            }
+        }
+        NativeDll.DeallocateArrayOfPoint(ptr);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; result;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can run this benchmark from the command line using the following command:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release -f netcoreapp2.1 -- --filter *AllocAndFreeNativeStruct*&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In output you can see the summary table:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Method&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Mean&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Error&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;StdDev&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Allocated native memory&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;Native memory leak&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;AllocAndFreeNativeStruct&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;323.0 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;66.38 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3.64 ns&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1600 B&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;This benchmark uses 1600 B of native memory because &lt;code&gt;Point&lt;/code&gt; has two filed &lt;code&gt;int X&lt;/code&gt; and &lt;code&gt;int Y&lt;/code&gt;, &lt;code&gt;int&lt;/code&gt; has 4 B and in this benchmark there was an array with 200 elements allocated. (2 * 4B * 200 = 1600 B)&lt;/p&gt;
+
+&lt;p&gt;Now it&amp;rsquo;s time to use the PerfView.&lt;/p&gt;
+
+&lt;p&gt;The first step is to open the &lt;code&gt;etl&lt;/code&gt; file in PerfView and navigate to the Events window.&lt;/p&gt;
+
+&lt;p&gt;Because BenchmarkDotNet runs your benchmarked function many times in one workload and it runs many workloads, we would like to narrow down the search. For example, the above test on my computer generates the following result log which means that my benchmarked function was running 131072 times in one workload.  And we know that there were tree workloads.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/WorkloadActual.gif&#34; alt=&#34;1565168838473&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Firstly, you need to find the start and end times of the first WarkloadActual. When you have these times, you can find all &lt;code&gt;HeapTrace&lt;/code&gt; events. In summary, you can find information about how many objects were allocated:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;Native memory allocated per single operation: &lt;span style=&#34;color:#ae81ff&#34;&gt;1600&lt;/span&gt; B
+Count of allocated &lt;span style=&#34;color:#66d9ef&#34;&gt;object&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In my example, there was only one object which means that the first event &lt;code&gt;HeapTraceProvider/HeapTrace/Alloc&lt;/code&gt; came from the first run of my benchmarked function, from the first workload. The following image shows how to find this information in PerfView:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/PerfView-events-windows.gif#mid&#34; alt=&#34;PerfView-events-windows&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now it is time to show the information regarding types. In PerfView you should open &lt;code&gt;Net OS Heap Alloc Stacks&lt;/code&gt; window from &lt;code&gt;Memory Group&lt;/code&gt;. You can use the start and end times of the first Workload because only data between these times is interesting. Below you can see, how to show the information about on types of allocated objects.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;/images/NativeMemoryProfiler/PerfView-heap-windows.gif#mid&#34; alt=&#34;PerfView-events-windows&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;how-it-works&#34;&gt;How it works&lt;/h2&gt;
+
+&lt;p&gt;To implement &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; I used &lt;code&gt;EtwProfiler&lt;/code&gt; that runs User, Kernel, and Heap ETW sessions. Each session writes data to its own file and in the end these files are marge to one &lt;code&gt;*.etl&lt;/code&gt; file. The &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; uses different events from different sessions:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BenchmarkDotNet Engine events, like &lt;code&gt;WorkloadActualStart&lt;/code&gt; and &lt;code&gt;WorkloadActualStop&lt;/code&gt; from User session,&lt;/li&gt;
+&lt;li&gt;HeapTrace events, like &lt;code&gt;HeapTraceAlloc&lt;/code&gt;, &lt;code&gt;HeapTraceFree&lt;/code&gt;, &lt;code&gt;HeapTraceReAlloc&lt;/code&gt;, &lt;code&gt;HeapTraceDestroy&lt;/code&gt;, from Heap session.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;You can find the source code in my PRs: &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/1131&#34;&gt;#1131&lt;/a&gt; and &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/1208&#34;&gt;#1208&lt;/a&gt; or directly in the BenchmarkDotNet &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/blob/master/src/BenchmarkDotNet.Diagnostics.Windows/NativeMemoryProfiler.cs&#34;&gt;code&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;limitations&#34;&gt;Limitations&lt;/h2&gt;
+
+&lt;p&gt;Because &lt;code&gt;NativeMemoryProfiler&lt;/code&gt; uses &lt;code&gt;EtwProfiler&lt;/code&gt;, it also has its limitations:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Windows only&lt;/li&gt;
+&lt;li&gt;Requires running as Admin (ETW Kernel Session)&lt;/li&gt;
+&lt;li&gt;No &lt;code&gt;InProcessToolchain&lt;/code&gt; support&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;In advanced projects, native code and resources are used very often. Currently, during benchmarking your code, not only you can easily check its speed, but also check how much native memory it uses, thanks to &lt;code&gt;NativeMemoryProfiler&lt;/code&gt;.&lt;/p&gt;
+</description>
+     </item>
+   
+     <item>
+       <title>Generate disassembly of .NET functions</title>
+       <link>/2019/01/generate-disassembly-of-.net-functions/</link>
+       <pubDate>Mon, 28 Jan 2019 02:13:54 -0400</pubDate>
+       <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+       <guid>/2019/01/generate-disassembly-of-.net-functions/</guid>
+       <description>
+
+&lt;p&gt;In this post you will learn how to generate the disassembly of .NET functions and how to diff many of them.&lt;/p&gt;
+
+&lt;p&gt;It was not so long ago when I added a new feature to &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; that allows you to generate a diff raport for many dissassembly of .NET function. You can see all the changes in following PRs: &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/927&#34;&gt;#927&lt;/a&gt;, &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/937&#34;&gt;#937&lt;/a&gt; and &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/1022&#34;&gt;#1022&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In this post I will be using the benchmark code from PR &lt;a href=&#34;https://github.com/dotnet/coreclr/pull/13626&#34;&gt;dotnet/coreclr#13626&lt;/a&gt; to &lt;a href=&#34;https://github.com/dotnet/coreclr&#34;&gt;CoreCLR&lt;/a&gt; repo. In metioned PR &lt;a href=&#34;https://github.com/mikedn&#34;&gt;@mikedn&lt;/a&gt; enables JIT to generate more efficient BT instruction in some situations. It is great example to show my exporter in action.&lt;/p&gt;
+
+&lt;h2 id=&#34;generate-disassembly&#34;&gt;Generate disassembly&lt;/h2&gt;
+
+&lt;p&gt;In &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; you can easily generate disassembler for .NET function. All you need is add &lt;code&gt;[DisassemblyDiagnoser]&lt;/code&gt; attribute to your benchmark, like below:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [DisassemblyDiagnoser]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroDisassembly&lt;/span&gt;
+    {
+&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark(OperationsPerInvoke = 10_000_000)]&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; LoweringTESTtoBT()
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, x = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (x++ &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;_000_000)
+                &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; ((x &amp;amp; (&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &amp;lt;&amp;lt; y)) == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+                    y++;
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; y;
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can also do this with the &lt;code&gt;-d&lt;/code&gt; or &lt;code&gt;--disasm&lt;/code&gt; command line arguments.&lt;/p&gt;
+
+&lt;p&gt;Running this benchmark will create lot of reports in directory&lt;code&gt;BenchmarkDotNet.Artifacts\results&lt;/code&gt;. Among them is &lt;code&gt;ProjectName.IntroDisassembly-asm.pretty.md&lt;/code&gt; that looks like:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;.NET Core 2.1.6 (CoreCLR 4.6.27019.06, CoreFX 4.6.27019.05), 64bit RyuJIT&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-assembly&#34; data-lang=&#34;assembly&#34;&gt;; BenchmarkDotNet.Samples.IntroDisassemblyCode.LoweringTESTtoBT()
+       xor     eax,eax
+       xor     edx,edx
+       jmp     M00_L01
+M00_L00:
+       bt      ecx,eax
+       mov     edx,ecx
+       jb      M00_L01
+       inc     eax
+M00_L01:
+       lea     ecx,[rdx+1]
+       cmp     edx,989680h
+       jl      M00_L00
+       ret
+; Total bytes of code 27&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can use this feature to understand why one solution is better then other or you can learn about how C# code which you wrote works on your computer.&lt;/p&gt;
+
+&lt;p&gt;Nothing new so far ;)&lt;/p&gt;
+
+&lt;h2 id=&#34;generates-diff-of-two-disassembly&#34;&gt;Generates diff of two disassembly&lt;/h2&gt;
+
+&lt;p&gt;Sometimes your code works fast on newer version of .NET Core and works slow on the older one. That is quite common case, because .NET Core is improving very fast. In other case you probably would see performance regression and create issue to &lt;a href=&#34;https://github.com/dotnet/coreclr&#34;&gt;CoreCLR&lt;/a&gt; repo.&lt;/p&gt;
+
+&lt;p&gt;If you want to generate disassembly of function for multiple .NET versions, just configure your test, e. g.:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[Config(typeof(MultipleJits))]&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroDisassembly&lt;/span&gt;
+{
+&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark(OperationsPerInvoke = 10_000_000)]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; LoweringTESTtoBT()
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, x = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (x++ &amp;lt; &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;_000_000)
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; ((x &amp;amp; (&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &amp;lt;&amp;lt; y)) == &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+                y++;
+
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; y;
+    }
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MultipleJits&lt;/span&gt; : ManualConfig
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; MultipleJits()
+    {
+        &lt;span style=&#34;color:#75715e&#34;&gt;// .NET core 2.0
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Add(Job.ShortRun.With(Platform.X64).With(CsProjCoreToolchain.NetCoreApp20));
+        &lt;span style=&#34;color:#75715e&#34;&gt;// .NET core 2.1
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Add(Job.ShortRun.With(Platform.X64).With(CsProjCoreToolchain.NetCoreApp21));
+        
+        &lt;span style=&#34;color:#75715e&#34;&gt;// Add disassembly diagnoser with printDiff = true
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Add(DisassemblyDiagnoser.Create(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; DisassemblyDiagnoserConfig(printAsm: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;, printPrologAndEpilog: &lt;span style=&#34;color:#66d9ef&#34;&gt;false&lt;/span&gt;, recursiveDepth: &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, printDiff: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;)));
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In this example I added two jobs. One for .NET Core 2.0 and other for .NET Core 2.1. I added also &lt;code&gt;DisassemblyDiagnoser&lt;/code&gt; with &lt;code&gt;printDiff&lt;/code&gt; option set to &lt;code&gt;true&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;After benchmark run, you can see that &lt;a href=&#34;https://github.com/mikedn&#34;&gt;@mikedn&amp;rsquo;s&lt;/a&gt; optimization made this code much faster on .NET Core 2.1:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;           &lt;span style=&#34;color:#a6e22e&#34;&gt;Method |     Toolchain |      Mean |     Error |    StdDev |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;----------------- |-------------- |----------:|----------:|----------:|&lt;/span&gt;
+ &lt;span style=&#34;color:#a6e22e&#34;&gt;LoweringTESTtoBT | .NET Core 2.0 | 2.3164 ns | 0.8837 ns | 0.0484 ns |&lt;/span&gt;
+ &lt;span style=&#34;color:#a6e22e&#34;&gt;LoweringTESTtoBT | .NET Core 2.1 | 0.6531 ns | 0.2882 ns | 0.0158 ns |&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In directory &lt;code&gt;BenchmarkDotNet.Artifacts\results&lt;/code&gt; you will see also &lt;code&gt;ProjectName.IntroDisassembly-asm.pretty.diff.md&lt;/code&gt; that looks:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;BenchmarkDotNet.Samples.IntroDisassemblyCode&lt;/strong&gt;
+&lt;strong&gt;Diff for LoweringTESTtoBT method between:&lt;/strong&gt;
+.NET Core 2.0.9 (CoreCLR 4.6.26614.01, CoreFX 4.6.26614.01), 64bit RyuJIT
+.NET Core 2.1.6 (CoreCLR 4.6.27019.06, CoreFX 4.6.27019.05), 64bit RyuJIT&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;; BenchmarkDotNet.Samples.IntroDisassemblyCode.LoweringTESTtoBT()
+        xor     eax,eax
+        xor     edx,edx
+        jmp     M00_L01
+ M00_L00:
+&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     ecx,eax
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       and     ecx,1Fh
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     edx,1
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       shl     edx,cl
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     ecx,dword ptr [rsp+4]
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-       test    edx,ecx
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+       bt      ecx,eax
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;        mov     edx,ecx
+&lt;span style=&#34;color:#f92672&#34;&gt;-       jne     M00_L01
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+       jb      M00_L01
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;        inc     eax
+ M00_L01:
+        lea     ecx,[rdx+1]
+&lt;span style=&#34;color:#f92672&#34;&gt;-       mov     dword ptr [rsp+4],ecx
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;        cmp     edx,989680h
+        jl      M00_L00
+&lt;span style=&#34;color:#f92672&#34;&gt;-       add     rsp,8
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-; Total bytes of code 49
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+       ret
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+; Total bytes of code 27
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;limitations&#34;&gt;Limitations&lt;/h2&gt;
+
+&lt;p&gt;Please note that this exporter internally uses the &lt;code&gt;git diff&lt;/code&gt; command, so it requires a &lt;a href=&#34;https://git-scm.com/&#34;&gt;GIT&lt;/a&gt; installed on the system.&lt;/p&gt;
+
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;Thanks to this report you can easily see what has been changed in the assembly code on various versions of .NET runtimes. You can also copy and paste it to GitHub.&lt;/p&gt;
+</description>
+     </item>
+   
+     <item>
+       <title>How I improved the YamlDotNet performance by 370%</title>
+       <link>/2018/12/how-i-improved-the-yamldotnet-performance-by-370/</link>
+       <pubDate>Tue, 18 Dec 2018 02:11:01 -0100</pubDate>
+       <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+       <guid>/2018/12/how-i-improved-the-yamldotnet-performance-by-370/</guid>
+       <description>
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/aaubry/YamlDotNet&#34;&gt;YamlDotNet&lt;/a&gt; is the most famous library to manage YAML format on .Net platform. This library is really stable and good solution. Many of my programs use this library, so I thought that this is prefect open source project that I can improve.&lt;/p&gt;
+
+&lt;h2 id=&#34;what-can-i-do&#34;&gt;What can I do?&lt;/h2&gt;
+
+&lt;p&gt;I&amp;rsquo;ve opened &lt;a href=&#34;https://github.com/aaubry/YamlDotNet/issues&#34;&gt;issues tab&lt;/a&gt; looking for issues with labels: &amp;ldquo;good first issue&amp;rdquo;, &amp;ldquo;help wanted&amp;rdquo; or &amp;ldquo;up-for-grabs&amp;rdquo;. However I couldn&amp;rsquo;t find them because this specific labels names are not used in this project.&lt;/p&gt;
+
+&lt;p&gt;I thought that I could read the source code and maybe I find something interesting to improve. I have to admit that the source code of the library is really clean. I took a look at the performance tests and immediately realized that I want to improve them.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&#34;https://github.com/aaubry/YamlDotNet&#34;&gt;YamlDotNet&lt;/a&gt; used to use &lt;code&gt;Stopwatch&lt;/code&gt; to measure performance of benchmark tests. The main loop that run the tests looked like:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; test &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; tests)
+{
+    Console.Write(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{0}\t{1}\t&amp;#34;&lt;/span&gt;, adapterName, test.GetType().Name);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; graph = test.Graph;
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Warmup
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    RunTest(serializer, graph);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt;(!Stopwatch.IsHighResolution)
+    {
+        Console.Error.WriteLine(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Stopwatch is not high resolution!&amp;#34;&lt;/span&gt;);
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; timer = Stopwatch.StartNew();
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; i = &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &amp;lt; iterations; ++i)
+    {
+        RunTest(serializer, graph);
+    }
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; duration = timer.Elapsed;
+    Console.WriteLine(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{0}&amp;#34;&lt;/span&gt;, duration.TotalMilliseconds / iterations);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can find original code &lt;a href=&#34;https://github.com/aaubry/YamlDotNet/blob/v5.2.1/PerformanceTests/YamlDotNet.PerformanceTests.Lib/PerformanceTestRunner.cs#L46-L67&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;As you can see tests here are using &lt;code&gt;StopWatch&lt;/code&gt; class to measure code performance. The better way to do it is to use &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; which is a powerful .NET library for benchmarking.&lt;/p&gt;
+
+&lt;p&gt;So, let&amp;rsquo;s see how to start.&lt;/p&gt;
+
+&lt;p&gt;At first I wrote code of the test:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[MemoryDiagnoser]&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;ReceiptTest&lt;/span&gt;
+{
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;readonly&lt;/span&gt; Receipt _receipt = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; Receipt();
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;readonly&lt;/span&gt; StringWriter _buffer = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; StringWriter();
+
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;readonly&lt;/span&gt; ISerializer _serializer = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; SerializerBuilder()
+		.WithNamingConvention(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; CamelCaseNamingConvention())
+		.Build();
+&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Benchmark(Description = &amp;#34;Serialize vlatest&amp;#34;)]&lt;/span&gt;
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Serialize()
+	{
+		_serializer.Serialize(_buffer, _receipt.Graph);
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The &lt;code&gt;Serialize()&lt;/code&gt; method marked with &lt;code&gt;[Benchmark]&lt;/code&gt; attribute is my benchmark test. I&amp;rsquo;ve used &lt;code&gt;[MemoryDiagnoser]&lt;/code&gt; because I wanted to know how much memory was used by the &lt;a href=&#34;https://github.com/aaubry/YamlDotNet&#34;&gt;YamlDotNet&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Then I modified the &lt;code&gt;Program&lt;/code&gt; class:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-C#&#34; data-lang=&#34;C#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Program&lt;/span&gt;
+{
+	&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Main(&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;[] args)
+	{
+		&lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; summary = BenchmarkRunner.Run&amp;lt;ReceiptTest&amp;gt;();
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;I couldn&amp;rsquo;t wait to see my great change in action, so I run the program from console:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;dotnet run -c Release&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Unfortunately, I got error message:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// Validating benchmarks:
+Assembly YamlDotNet.PerformanceTests.vlatest which defines benchmarks references non-optimized YamlDotNet
+        If you own this dependency, please, build it in RELEASE.
+        If you don&#39;t, you can create custom config with DontFailOnError to disable our custom policy and allow this benchmark to run.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As a message say &lt;code&gt;If you own this dependency, please, build it in RELEASE&lt;/code&gt; and I went to my Visual Studio and I see:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;/images/YamlDotNetConfigurations.png#normal&#34; alt=&#34;YamlDotNet configurations&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I had chosen &lt;code&gt;Release-PerformanceTests&lt;/code&gt; but BenchmarkDotNet printed me a message that I had to build the library in &lt;code&gt;Release&lt;/code&gt;. Something was wrong.&lt;/p&gt;
+
+&lt;p&gt;For unknown reasons, &lt;code&gt;Release-PerformanceTests&lt;/code&gt; doesn&amp;rsquo;t work in the same way like &lt;code&gt;Release&lt;/code&gt; configuration. After short research I find an &lt;a href=&#34;https://www.pedrolamas.com/2017/04/24/creating-custom-build-configurations-for-the-dotnet-core-project-format/&#34;&gt;article&lt;/a&gt; about this problem.&lt;/p&gt;
+
+&lt;p&gt;In turned out that the new .csproj format for .Net Core doesn&amp;rsquo;t have the same behavior as the old one. The &lt;code&gt;Release-*&lt;/code&gt; configurations doesn&amp;rsquo;t inherit from &lt;code&gt;Release&lt;/code&gt; configuration anymore. All I had to do was set several parameters in the project file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;PropertyGroup&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Condition=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#39;$(Configuration)&amp;#39; == &amp;#39;Release-Signed&amp;#39; Or &amp;#39;$(Configuration)&amp;#39; == &amp;#39;Release-Unsigned&amp;#39; &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;DefineConstants&amp;gt;&lt;/span&gt;$(DefineConstants);RELEASE;TRACE&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/DefineConstants&amp;gt;&lt;/span&gt;
+	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;DebugSymbols&amp;gt;&lt;/span&gt;false&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/DebugSymbols&amp;gt;&lt;/span&gt;
+	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;DebugType&amp;gt;&lt;/span&gt;portable&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/DebugType&amp;gt;&lt;/span&gt;
+	&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;Optimize&amp;gt;&lt;/span&gt;true&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/Optimize&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/PropertyGroup&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;After that changes, &lt;a href=&#34;https://benchmarkdotnet.org/&#34;&gt;BenchmarkDotNet&lt;/a&gt; was working. Out of curiosity, I compared the results before and after my changes and I was shocked.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;-----------------------------------------------------------------------------------&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;| Serialize                                                                       |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;-----------------------------------------------------------------------------------&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|         |      Mean |     Error |    StdDev |      Gen0 |      Gen1 | Allocated |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;-----------------------------------------------------------------------------------&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;| v5.2.1  |  539.5 us |  5.710 us |  5.062 us |    8.7891 |    0.9766 |  30.82 KB |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;| vlatest |  145.8 us |  1.671 us |  1.563 us |    8.3008 |    0.4883 |   30.7 KB |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;-----------------------------------------------------------------------------------&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Performance increased about 370% !&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;That was great news! I&amp;rsquo;ve made pull request which you can see &lt;a href=&#34;https://github.com/aaubry/YamlDotNet/pull/356&#34;&gt;here&lt;/a&gt; . My changes have been approved to &lt;a href=&#34;https://www.nuget.org/packages/YamlDotNet/5.3.0&#34;&gt;YamlDotNet 5.3.0&lt;/a&gt; version.&lt;/p&gt;
+
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;The biggest lesson from this post, is that we always have to measure the performance of our changes, even for small ones. A seemingly insignificant change can spoil our performance.
+And last but not least, we should always use existing solutions. Their authors spent a lot of time, so that we could save our time. Instead of creating a new solution, simply use existing one, do not reinvent the wheel.&lt;/p&gt;
+</description>
+     </item>
+   
+     <item>
+       <title>First Pull Request in Open Source</title>
+       <link>/2018/12/first-pull-request-in-open-source/</link>
+       <pubDate>Tue, 11 Dec 2018 11:16:00 -0400</pubDate>
+       <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+       <guid>/2018/12/first-pull-request-in-open-source/</guid>
+       <description>
+
+&lt;p&gt;Not so long ago, I saw a video &lt;a href=&#34;https://www.youtube.com/watch?v=2HSPKyAyuik&#34;&gt;Adam Sitnik - My awesome journey with Open Source&lt;/a&gt; and it opened my eyes.&lt;/p&gt;
+
+&lt;p&gt;I am a senior developer with 11 years of experience in programming. In my career, I did a lot of great things connected to programming, but only my colleagues from work knew about it. If I would like to change my job, I would have to prove my qualifications. Another sad thing about both my personal and business projects is that most of my code is NOT used anymore. It really makes me sad. Than that video came up. Adam showed me that I can create code that will be used all over the world for many, many years. Solution is Open Source.&lt;/p&gt;
+
+&lt;p&gt;But, how to start?&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Find the repo of project that interests you.&lt;/li&gt;
+&lt;li&gt;Go to Issue tab and filter issue by labels: &amp;ldquo;good first issue&amp;rdquo;, &amp;ldquo;help wanted&amp;rdquo; or &amp;ldquo;up-for-grabs&amp;rdquo;.&lt;/li&gt;
+&lt;li&gt;Optional: Ask if selected issue is up to date and is not blocked.&lt;/li&gt;
+&lt;li&gt;Try to implement missing functionality.&lt;/li&gt;
+&lt;li&gt;Make a pull request. If you don&amp;rsquo;t know how to do it, please open Google or Youtube and type: &amp;ldquo;how to create pull request on github&amp;rdquo;. It takes only few minutes.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;So, I tried.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;I&amp;rsquo;ve chosen &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; repo. Why? I&amp;rsquo;ve used this tool and learned many things when using it.&lt;/li&gt;
+&lt;li&gt;I&amp;rsquo;ve found &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/issues/905&#34;&gt;Implement &lt;code&gt;--list&lt;/code&gt;&lt;/a&gt; issue. The task had all the labels that I mentioned above.&lt;/li&gt;
+&lt;li&gt;I&amp;rsquo;ve reserved task for myself.&lt;/li&gt;
+&lt;li&gt;I will describe implementation below.&lt;/li&gt;
+&lt;li&gt;I&amp;rsquo;ve done &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/914&#34;&gt;pull request&lt;/a&gt; with my changes.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;implementation&#34;&gt;Implementation&lt;/h2&gt;
+
+&lt;p&gt;I didn&amp;rsquo;t do anything special in this task. Remember that it was the first pull request to Open Source.&lt;/p&gt;
+
+&lt;p&gt;In this issue I had to implement console line &lt;code&gt;--list&lt;/code&gt; option which will print all of available benchmark names. This option should have two modes:&lt;/p&gt;
+
+&lt;h5 id=&#34;1-flat-list&#34;&gt;1. Flat list&lt;/h5&gt;
+
+&lt;p&gt;This mode is simple list of all benchmark names.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Samples.exe --list flat&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre&gt;&lt;code&gt;BenchmarkDotNet.Samples.Algo_Md5VsSha256.Md5
+BenchmarkDotNet.Samples.Algo_Md5VsSha256.Sha256
+BenchmarkDotNet.Samples.IntroArguments.Benchmark
+BenchmarkDotNet.Samples.IntroArgumentsSource.SingleArgument
+BenchmarkDotNet.Samples.IntroArgumentsSource.ManyArguments
+BenchmarkDotNet.Samples.IntroArrayParam.ArrayIndexOf
+BenchmarkDotNet.Samples.IntroArrayParam.ManualIndexOf
+BenchmarkDotNet.Samples.IntroBasic.Sleep
+BenchmarkDotNet.Samples.IntroBasic.Thread.Sleep(10)
+[...]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;2-tree-list&#34;&gt;2. Tree list&lt;/h5&gt;
+
+&lt;p&gt;In this mode BenchmarkDotNet should print all benchmark names as a tree list.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkDotNet.Samples.exe --list tree&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;pre&gt;&lt;code&gt;BenchmarkDotNet
+ └─Samples
+    ├─Algo_Md5VsSha256
+    │  ├─Md5
+    │  └─Sha256
+    ├─IntroArguments
+    │  └─Benchmark
+    ├─IntroArgumentsSource
+    │  ├─SingleArgument
+    │  └─ManyArguments
+    ├─IntroArrayParam
+    │  ├─ArrayIndexOf
+    │  └─ManualIndexOf
+    ├─IntroBasic
+    │  ├─Sleep
+    │  └─Thread
+    │     └─Sleep(10)
+[...]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;At first I added new console parameter. &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; uses &lt;a href=&#34;https://github.com/commandlineparser/commandline&#34;&gt;CommandLineParser&lt;/a&gt; to parse command line attributes. CommandLineParser is useful tool that I implemented in many of projects. If you don&amp;rsquo;t know it, here you can find &lt;a href=&#34;https://github.com/commandlineparser/commandline&#34;&gt;documentation&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This parameter should have three values: Disable, Flat and Tree. I just added enum:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;enum&lt;/span&gt; ListBenchmarkCaseMode
+    {
+        &lt;span style=&#34;color:#75715e&#34;&gt;/// &amp;lt;summary&amp;gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// Do not print any of the available full benchmark names.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// &amp;lt;/summary&amp;gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Disable,
+
+        &lt;span style=&#34;color:#75715e&#34;&gt;/// &amp;lt;summary&amp;gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// Prints flat list of the available benchmark names.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// &amp;lt;/summary&amp;gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Flat,
+
+        &lt;span style=&#34;color:#75715e&#34;&gt;/// &amp;lt;summary&amp;gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// Prints tree of the available full benchmark names.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;/// &amp;lt;/summary&amp;gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        Tree
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then I added the appropriate option to the class that is used for parsing command line attributes.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[Option(&amp;#34;list&amp;#34;, Required = false, Default = ListBenchmarkCaseMode.Disable, HelpText = &amp;#34;Prints all of the available benchmark names. Flat/Tree&amp;#34;)]&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; ListBenchmarkCaseMode ListBenchmarkCaseMode { &lt;span style=&#34;color:#66d9ef&#34;&gt;get&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;set&lt;/span&gt;; }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Displaying the tree list was the most difficult part. Fortunately, I read &lt;a href=&#34;https://andrewlock.net/about/&#34;&gt;Andrew Lock&lt;/a&gt; blog who wrote post &lt;a href=&#34;https://andrewlock.net/creating-an-ascii-art-tree-in-csharp/&#34;&gt;Creating an ASCII-art tree in C#&lt;/a&gt;. All I had to do was to check the source code license. Luckily for me, it was a &lt;a href=&#34;https://opensource.org/licenses/MIT&#34;&gt;MIT license&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;I created interface:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;interface&lt;/span&gt; IBenchmarkCasesPrinter
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testNames);
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And two implementation of it. One for each mode.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;FlatBenchmarkCasesPrinter&lt;/span&gt; : IBenchmarkCasesPrinter
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testNames)
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;foreach&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt; test &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; testNames)
+            {
+                Console.WriteLine(test);
+            }
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;TreeBenchmarkCasesPrinter&lt;/span&gt; : IBenchmarkCasesPrinter
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testNames)
+        {
+            &lt;span style=&#34;color:#75715e&#34;&gt;//Here is the algorithm from the Andrew Lock&amp;#39;s blog
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        }
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In next step I used &lt;a href=&#34;https://en.wikipedia.org/wiki/Facade_pattern&#34;&gt;fasade pattern&lt;/a&gt; because I wanted to mask interaction with more complex components behind a single API.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-C#&#34; data-lang=&#34;C#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;internal&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;BenchmarkCasesPrinter&lt;/span&gt; : IBenchmarkCasesPrinter
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;readonly&lt;/span&gt; IBenchmarkCasesPrinter printer;
+        
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; BenchmarkCasesPrinter(ListBenchmarkCaseMode listBenchmarkCaseMode)
+        {
+            printer = listBenchmarkCaseMode == ListBenchmarkCaseMode.Tree
+                ? (IBenchmarkCasesPrinter) &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; TreeBenchmarkCasesPrinter()
+                : &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; FlatBenchmarkCasesPrinter();
+        }
+         &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Print(IEnumerable&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;string&lt;/span&gt;&amp;gt; testName) =&amp;gt; printer.Print(testName);
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Next I searched for a place where BenchmarkDotNet gets all benchmarks. In the end, I created and run the fasade class, if the value of &lt;code&gt;--list&lt;/code&gt; parameter was set. Bellow you can see how I changed the original code.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;- var filteredBenchmarks = typeParser.Filter(effectiveConfig);
+&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ var filteredBenchmarks = typeParser.Filter(effectiveConfig, listBenchmarkCase);
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
+  if (filteredBenchmarks.IsEmpty())
+	return Array.Empty&amp;lt;Summary&amp;gt;();
+	
+&lt;span style=&#34;color:#a6e22e&#34;&gt;+ var listBenchmarkCase = options.ListBenchmarkCaseMode != BistBenchmarkCaseMode.Disable;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ if (listBenchmarkCase)
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ {
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	var testNames = filteredBenchmarks.SelectMany(p =&amp;gt; p.BenchmarksCases)
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 		.Select(p =&amp;gt; p.Descriptor.GetFilterName()).Distinct();
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	var printer = new BenchmarkCasesPrinter(options.ListBenchmarkCaseMode);
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	printer.Print(testNames);
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;+ 	return Enumerable.Empty&amp;lt;Summary&amp;gt;();
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;+ }
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;&lt;/span&gt;
+  //Old beheviour
+  summaries.AddRange(BenchmarkRunner.Run(filteredBenchmarks, effectiveConfig));
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You can see all the details in &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/914&#34;&gt;pull request&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This task did not require knowledge of BenchmarkDotNet internals like running the tests. It was good lesson, you do not need to know the entire source code of the project. You should keep focus on the very specific problem which you want to solve. It saves a lot of time.&lt;/p&gt;
+
+&lt;h2 id=&#34;summary&#34;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;I did this task in no time but doing it made me really happy. The most rewarding thing is that this feature is useful both for me and also for people around the world. The funny thing is that Adam Sitnik showed this feature on Get.Net conference. I was absent but a colleague sent me a photo:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;/images/GetNet.jpg#mid&#34; alt=&#34;YamlDotNet configurations&#34; /&gt;&lt;/p&gt;
+</description>
+     </item>
+   
+ </channel>
+</rss>

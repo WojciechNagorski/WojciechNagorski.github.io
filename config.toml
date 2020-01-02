@@ -13,7 +13,7 @@ enableRobotsTXT = true
 
 
 title = "Wojciech Nagórski"
-copyright = "&copy; 2018 Wojciech Nagórski"
+copyright = "&copy; 2020 Wojciech Nagórski"
 
 paginate = 15
 
@@ -30,11 +30,12 @@ pygmentsCodeFences = true
 [author]
     name = "Wojciech Nagórski"
     github = "WojciechNagorski"
-	linkedin = "wojciech-nagórski-a3420493"
+    linkedin = "wojciech-nagórski-a3420493"
     #gitter = ""
     #facebook = ""
     twitter = "WojtekNagorski"
     email = "wojtpl2@gmail.com"
+    rss = ""
 
 [permalinks]
   posts = "/:year/:month/:title/"
@@ -42,6 +43,7 @@ pygmentsCodeFences = true
 [params]
     description = "Wojciech Nagórski"
     tagline = "What I have done in .NET world."
+    customCSS = ["css/custom.css"]
 	
 ## Main Menu
 [[menu.main]]
@@ -54,7 +56,5 @@ pygmentsCodeFences = true
     name = "Tags"
     weight = 20
     identifier = "tags"
-    url = "/tags"	
+    url = "/tags"
 	
-[params.assets]
-customCSS = ["css/custom.css"]
