@@ -1,0 +1,341 @@
+<!doctype html>
+
+<html lang="en-us">
+
+<head>
+  <title>Wojciech Nagórski</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="In this post I would like to show how to profiling .NET code with BenchmarkDotNet" />
+<meta name="author" content="Wojciech Nagórski" /><meta property="og:title" content="Cross-platform profiling .NET code with BenchmarkDotNet" />
+<meta property="og:description" content="In this post I would like to show how to profiling .NET code with BenchmarkDotNet" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/2020/04/cross-platform-profiling-.net-code-with-benchmarkdotnet/" />
+<meta property="article:published_time" content="2020-04-05T18:00:00-04:00" />
+<meta property="article:modified_time" content="2020-04-05T18:00:00-04:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Cross-platform profiling .NET code with BenchmarkDotNet"/>
+<meta name="twitter:description" content="In this post I would like to show how to profiling .NET code with BenchmarkDotNet"/>
+
+<meta name="generator" content="Hugo 0.59.1" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="/fontawesome/css/all.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  <link rel="stylesheet" type="text/css" href="/css/styles.css" /><link rel='stylesheet' href='/css/custom.css'></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="/">Wojciech Nagórski</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="mailto:wojtpl2@gmail.com" title="Email me">
+               <i class="fas fa-envelope fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://github.com/WojciechNagorski" title="GitHub">
+               <i class="fab fa-github fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://twitter.com/WojtekNagorski" title="Twitter">
+               <i class="fab fa-twitter fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://linkedin.com/in/wojciech-nag%c3%b3rski-a3420493" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="/index.xml" title="RSS">
+               <i class="fas fa-rss fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>What I have done in .NET world.</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/categories">
+                <i class="fa-li fa  fa-lg"></i><span>Categories</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="/tags">
+                <i class="fa-li fa  fa-lg"></i><span>Tags</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+    <main>
+
+
+
+<article>
+
+    <h1>Cross-platform profiling .NET code with BenchmarkDotNet</h1>
+
+    
+    <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2020-04-05T18:00:00-04:00">Apr 5, 2020</time>
+        </li>
+        
+        <li>
+            Categories:
+            <em>
+                
+                    
+                    <a href="/categories/opensource">OpenSource</a>
+                
+                    , 
+                    <a href="/categories/benchmarkdotnet">BenchmarkDotNet</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="/tags/benchmarkdotnet">#BenchmarkDotNet</a>
+                
+                    , 
+                    <a href="/tags/profiler">#Profiler</a>
+                
+                    , 
+                    <a href="/tags/eventpipeprofiler">#EventPipeProfiler</a>
+                
+            </em>
+        </li>
+        
+
+        <li>4 minutes read</li>
+    </ul>
+</aside>
+
+    
+
+    
+
+    
+
+<p><code>EventPipeProfiler</code> is a new cross-platform profiler that I&rsquo;ve implemented in the <a href="https://github.com/dotnet/BenchmarkDotNet">BenchmarkDotNet</a> library. It allows profile .NET code on every platform - Windows, Linux, macOS. Collected data are exported to trace files (<code>.speedscope.json</code> and <code>.nettrace</code>) which can be analyzed using <a href="https://www.speedscope.app/">SpeedScope</a>, <a href="https://github.com/Microsoft/perfview">PerfView</a>, and <a href="https://docs.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer">Windows Performance Analyzer</a>. This new profiler will be available from 0.12.1 version.</p>
+
+<h2 id="demo">Demo</h2>
+
+<p>This profiler can be used in a really simple way. All that needs to be done is mark a benchmarked class with the <code>[EventPipeProfiler(...)]</code> attribute.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#66d9ef">using</span> System.Threading;
+<span style="color:#66d9ef">using</span> BenchmarkDotNet.Attributes;
+<span style="color:#66d9ef">using</span> BenchmarkDotNet.Diagnosers;
+
+<span style="color:#66d9ef">namespace</span> BenchmarkDotNet.Samples
+{   
+<span style="color:#a6e22e">    [EventPipeProfiler(EventPipeProfile.CpuSampling)]</span> <span style="color:#75715e">// &lt;-- Enables new profiler
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IntroEventPipeProfiler</span>
+    {
+<span style="color:#a6e22e">        [Benchmark]</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> Sleep() =&gt; Thread.Sleep(<span style="color:#ae81ff">2000</span>);
+    }
+}
+</code></pre></div>
+<p>The above benchmark generates the output:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[...]</span>
+
+<span style="color:#a6e22e">// * Summary *</span>
+
+<span style="color:#66d9ef">[...]</span>
+
+<span style="color:#a6e22e">| Method |    Mean |    Error |   StdDev |</span>
+<span style="color:#a6e22e">|------- |--------:|---------:|---------:|</span>
+<span style="color:#a6e22e">|  Sleep | 2.001 s | 0.0059 s | 0.0003 s |</span>
+
+<span style="color:#a6e22e">// * Legends *</span>
+ <span style="color:#66d9ef">[...]</span>
+
+<span style="color:#a6e22e">// * Diagnostic Output - EventPipeProfiler *</span>
+<span style="color:#a6e22e">Exported 1 trace file(s). Example:</span>
+<span style="color:#a6e22e">C:\work\BenchmarkDotNet\samples\BenchmarkDotNet.Samples\BenchmarkDotNet.Artifacts\BenchmarkDotNet.Samples.IntroEventPipeProfiler.Sleep-20200403-234150.speedscope.json</span>
+
+
+<span style="color:#a6e22e">// ***** BenchmarkRunner: End *****</span></code></pre></div>
+<p>And the exported <code>.speedscope.json</code> file can be opened in <a href="https://www.speedscope.app/">SpeedScope</a>.</p>
+
+<p><img src="/images/EventPipeProfiler/SpeedScope.png#mid" alt="SpeedScope" /></p>
+
+<h2 id="the-story">The story</h2>
+
+<p><a href="https://adamsitnik.com/ETW-Profiler/"><code>EtwProfiler</code></a> profiler is very popular but works only on Windows. .NET Core 3.0 shipped a new cool diagnostics features and tools, so it became possible to create a new cross-platform profiler.</p>
+
+<p>On the <a href="https://conf.dotnetos.org/">Dotnetos</a> Conference 2019, Adam Sitnik showed the new <a href="https://docs.microsoft.com/pl-pl/dotnet/core/diagnostics/dotnet-trace"><code>dotnet trace</code></a> tool on his <a href="https://www.youtube.com/watch?v=y4HV5m5GR7o">.NET Performance Investigation</a> presentation. During break, I came up with a proposition why we didn&rsquo;t use it in BenchmarkDotNet? My first idea was to use <code>dotnet trace</code> command directly in the profiler, but it was not possible because of an <a href="https://github.com/dotnet/diagnostics/issues/645">issue</a>. The second option was using <code>Microsoft.Diagnostics.NETCore.Client</code> nuget package which allows everyone to create a profiler in no time. There was only one problem, this package was published in the preview version and I could not able to use it in BenchmarkDotNet. Luckily <a href="https://github.com/sywhang">Sung Yoon Whang</a> came with help and released a final version right away.</p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p><code>EventPipeProfiler</code> can be configured in three different way:</p>
+
+<ol>
+<li><p><strong>Attribute</strong> - As you can see above you can use the <code>[EventPipeProfiler(...)]</code> attribute. This attribute takes the following profiles:</p>
+
+<ul>
+<li><code>CpuSampling</code> - Useful for tracking CPU usage and general .NET runtime information. This is the default option.</li>
+<li><code>GcVerbose</code> - Tracks GC collections and samples object allocations.</li>
+<li><code>GcCollect</code> - Tracks GC collections only at very low overhead.</li>
+<li><code>Jit</code> - Logging when Just in time (JIT) compilation occurs. Logging of the internal workings of the Just In Time compiler. This is fairly verbose. It details decisions about interesting optimization (like inlining and tail call)</li>
+</ul></li>
+
+<li><p><strong>Console line parameter</strong> - The parameter <code>-p EP</code> or <code>--profiler EP</code> can be used to enable this profiler from the console line.</p></li>
+
+<li><p><strong>Custom config</strong> - The most advanced and powerful way is to use a custom configuration.</p></li>
+</ol>
+
+<p>The first thing which should be done is the configuration class. The <code>EventPipeProfiler</code> constructor can take the profile and/or a list of providers.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#">    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CustomConfig</span> : ManualConfig
+    {
+        <span style="color:#66d9ef">public</span> CustomConfig()
+        {
+            AddJob(Job.ShortRun.WithRuntime(CoreRuntime.Core30));
+
+            <span style="color:#66d9ef">var</span> providers = <span style="color:#66d9ef">new</span>[] <span style="color:#75715e">// &lt;-- custom list of providers
+</span><span style="color:#75715e"></span>            {
+                <span style="color:#66d9ef">new</span> EventPipeProvider(ClrTraceEventParser.ProviderName, EventLevel.Verbose,
+                    (<span style="color:#66d9ef">long</span>) (ClrTraceEventParser.Keywords.Exception
+                    | ClrTraceEventParser.Keywords.GC
+                    | ClrTraceEventParser.Keywords.Jit
+                    | ClrTraceEventParser.Keywords.JitTracing <span style="color:#75715e">// for the inlining events
+</span><span style="color:#75715e"></span>                    | ClrTraceEventParser.Keywords.Loader
+                    | ClrTraceEventParser.Keywords.NGen)),
+                <span style="color:#66d9ef">new</span> EventPipeProvider(<span style="color:#e6db74">&#34;System.Buffers.ArrayPoolEventSource&#34;</span>, EventLevel.Informational, <span style="color:#66d9ef">long</span>.MaxValue),
+            };
+
+            AddDiagnoser(<span style="color:#66d9ef">new</span> EventPipeProfiler(providers: providers));  <span style="color:#75715e">//&lt;-- Adds new profiler
+</span><span style="color:#75715e"></span>        }
+    }
+</code></pre></div>
+<p>Then this configuration can be used in the benchmark class.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c#" data-lang="c#"><span style="color:#66d9ef">namespace</span> BenchmarkDotNet.Samples
+{
+<span style="color:#a6e22e">    [Config(typeof(CustomConfig))]</span>
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">IntroEventPipeProfilerAdvanced</span>
+    {
+        <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CustomConfig</span> : ManualConfig {} <span style="color:#75715e">// &lt;-- Configuration class
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">
+</span><span style="color:#a6e22e">        [Benchmark]</span>
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> RentAndReturn_Shared()
+        {
+            <span style="color:#66d9ef">var</span> pool = ArrayPool&lt;<span style="color:#66d9ef">byte</span>&gt;.Shared;
+            <span style="color:#66d9ef">byte</span>[] array = pool.Rent(<span style="color:#ae81ff">10000</span>);
+            pool.Return(array);
+        }
+    }
+}
+</code></pre></div>
+<p>As I mentioned before, both <code>EventPipeProfiler</code> and <code>dotnet trace</code> use the <code>Microsoft.Diagnostics.NETCore.Client</code> package internally. So before you start using the custom configuration of this profiler, it is worth reading the documentation <a href="https://github.com/dotnet/diagnostics/blob/master/documentation/dotnet-trace-instructions.md">here</a> and <a href="https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-trace#dotnet-trace-collect">here</a>.</p>
+
+<h2 id="analyzing-trace-files-using-perfview">Analyzing trace files using PerfView</h2>
+
+<p>This topic is completely described on Adam Sitnik&rsquo;s blog, <a href="https://adamsitnik.com/ETW-Profiler/#using-perfview-to-work-with-trace-files">here</a>, so I&rsquo;m not going to duplicate that information here.</p>
+
+<h2 id="thanks">Thanks</h2>
+
+<p>I would like to thank:</p>
+
+<ol>
+<li><a href="https://adamsitnik.com/">Adam Sitnik</a> - for the review and the farther improvement in this profiler, I mean <a href="https://github.com/dotnet/BenchmarkDotNet/pull/1381">dotnet/BenchmarkDotNet#1381</a></li>
+<li><a href="https://github.com/sywhang">Sung Yoon Whang</a> - for great work in <a href="https://www.nuget.org/packages/Microsoft.Diagnostics.NETCore.Client">Microsoft.Diagnostics.NETCore.Client</a> nuget package, especially for quick release the final version of this package.</li>
+<li><a href="https://conf.dotnetos.org/">Dotnetos</a> Conference - without which I could have not started work at all.</li>
+</ol>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="/2019/12/how-to-run-benchmarkdotnet-in-a-docker-container/"><i class="fa fa-chevron-circle-left"></i> How to run BenchmarkDotNet in a Docker container</a>
+        </li>
+        
+        
+    </ul>
+</section>
+    
+    
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "wojciechnagorski" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+    
+
+
+
+
+
+</main>
+    <footer>
+        <h6>&copy; 2020 Wojciech Nagórski |
+            Rendered by <a href="https://gohugo.io" title="Hugo">Hugo</a> |
+            <a href="/index.xml">Subscribe </a></h6>
+    </footer>
+</div>
+<script src="/js/scripts.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-130630724-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+</body>
+
+</html>
+

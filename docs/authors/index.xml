@@ -9,10 +9,145 @@
    <managingEditor>wojtpl2@gmail.com (Wojciech Nagórski)</managingEditor>
    <webMaster>wojtpl2@gmail.com (Wojciech Nagórski)</webMaster>
    <copyright>&amp;copy; 2020 Wojciech Nagórski</copyright>
-   <lastBuildDate>Tue, 10 Dec 2019 02:13:54 -0400</lastBuildDate>
+   <lastBuildDate>Sun, 05 Apr 2020 18:00:00 -0400</lastBuildDate>
    
        <atom:link href="/authors/index.xml" rel="self" type="application/rss+xml" />
    
+   
+     <item>
+       <title>Cross-platform profiling .NET code with BenchmarkDotNet</title>
+       <link>/2020/04/cross-platform-profiling-.net-code-with-benchmarkdotnet/</link>
+       <pubDate>Sun, 05 Apr 2020 18:00:00 -0400</pubDate>
+       <author>wojtpl2@gmail.com (Wojciech Nagórski)</author>
+       <guid>/2020/04/cross-platform-profiling-.net-code-with-benchmarkdotnet/</guid>
+       <description>
+
+&lt;p&gt;&lt;code&gt;EventPipeProfiler&lt;/code&gt; is a new cross-platform profiler that I&amp;rsquo;ve implemented in the &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet&#34;&gt;BenchmarkDotNet&lt;/a&gt; library. It allows profile .NET code on every platform - Windows, Linux, macOS. Collected data are exported to trace files (&lt;code&gt;.speedscope.json&lt;/code&gt; and &lt;code&gt;.nettrace&lt;/code&gt;) which can be analyzed using &lt;a href=&#34;https://www.speedscope.app/&#34;&gt;SpeedScope&lt;/a&gt;, &lt;a href=&#34;https://github.com/Microsoft/perfview&#34;&gt;PerfView&lt;/a&gt;, and &lt;a href=&#34;https://docs.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer&#34;&gt;Windows Performance Analyzer&lt;/a&gt;. This new profiler will be available from 0.12.1 version.&lt;/p&gt;
+
+&lt;h2 id=&#34;demo&#34;&gt;Demo&lt;/h2&gt;
+
+&lt;p&gt;This profiler can be used in a really simple way. All that needs to be done is mark a benchmarked class with the &lt;code&gt;[EventPipeProfiler(...)]&lt;/code&gt; attribute.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; System.Threading;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Attributes;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; BenchmarkDotNet.Diagnosers;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; BenchmarkDotNet.Samples
+{   
+&lt;span style=&#34;color:#a6e22e&#34;&gt;    [EventPipeProfiler(EventPipeProfile.CpuSampling)]&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- Enables new profiler
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroEventPipeProfiler&lt;/span&gt;
+    {
+&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark]&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; Sleep() =&amp;gt; Thread.Sleep(&lt;span style=&#34;color:#ae81ff&#34;&gt;2000&lt;/span&gt;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The above benchmark generates the output:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[...]&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;// * Summary *&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;[...]&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;| Method |    Mean |    Error |   StdDev |&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|------- |--------:|---------:|---------:|&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;|  Sleep | 2.001 s | 0.0059 s | 0.0003 s |&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;// * Legends *&lt;/span&gt;
+ &lt;span style=&#34;color:#66d9ef&#34;&gt;[...]&lt;/span&gt;
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;// * Diagnostic Output - EventPipeProfiler *&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Exported 1 trace file(s). Example:&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;C:\work\BenchmarkDotNet\samples\BenchmarkDotNet.Samples\BenchmarkDotNet.Artifacts\BenchmarkDotNet.Samples.IntroEventPipeProfiler.Sleep-20200403-234150.speedscope.json&lt;/span&gt;
+
+
+&lt;span style=&#34;color:#a6e22e&#34;&gt;// ***** BenchmarkRunner: End *****&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And the exported &lt;code&gt;.speedscope.json&lt;/code&gt; file can be opened in &lt;a href=&#34;https://www.speedscope.app/&#34;&gt;SpeedScope&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;/images/EventPipeProfiler/SpeedScope.png#mid&#34; alt=&#34;SpeedScope&#34; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;the-story&#34;&gt;The story&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://adamsitnik.com/ETW-Profiler/&#34;&gt;&lt;code&gt;EtwProfiler&lt;/code&gt;&lt;/a&gt; profiler is very popular but works only on Windows. .NET Core 3.0 shipped a new cool diagnostics features and tools, so it became possible to create a new cross-platform profiler.&lt;/p&gt;
+
+&lt;p&gt;On the &lt;a href=&#34;https://conf.dotnetos.org/&#34;&gt;Dotnetos&lt;/a&gt; Conference 2019, Adam Sitnik showed the new &lt;a href=&#34;https://docs.microsoft.com/pl-pl/dotnet/core/diagnostics/dotnet-trace&#34;&gt;&lt;code&gt;dotnet trace&lt;/code&gt;&lt;/a&gt; tool on his &lt;a href=&#34;https://www.youtube.com/watch?v=y4HV5m5GR7o&#34;&gt;.NET Performance Investigation&lt;/a&gt; presentation. During break, I came up with a proposition why we didn&amp;rsquo;t use it in BenchmarkDotNet? My first idea was to use &lt;code&gt;dotnet trace&lt;/code&gt; command directly in the profiler, but it was not possible because of an &lt;a href=&#34;https://github.com/dotnet/diagnostics/issues/645&#34;&gt;issue&lt;/a&gt;. The second option was using &lt;code&gt;Microsoft.Diagnostics.NETCore.Client&lt;/code&gt; nuget package which allows everyone to create a profiler in no time. There was only one problem, this package was published in the preview version and I could not able to use it in BenchmarkDotNet. Luckily &lt;a href=&#34;https://github.com/sywhang&#34;&gt;Sung Yoon Whang&lt;/a&gt; came with help and released a final version right away.&lt;/p&gt;
+
+&lt;h2 id=&#34;configuration&#34;&gt;Configuration&lt;/h2&gt;
+
+&lt;p&gt;&lt;code&gt;EventPipeProfiler&lt;/code&gt; can be configured in three different way:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Attribute&lt;/strong&gt; - As you can see above you can use the &lt;code&gt;[EventPipeProfiler(...)]&lt;/code&gt; attribute. This attribute takes the following profiles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CpuSampling&lt;/code&gt; - Useful for tracking CPU usage and general .NET runtime information. This is the default option.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GcVerbose&lt;/code&gt; - Tracks GC collections and samples object allocations.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GcCollect&lt;/code&gt; - Tracks GC collections only at very low overhead.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Jit&lt;/code&gt; - Logging when Just in time (JIT) compilation occurs. Logging of the internal workings of the Just In Time compiler. This is fairly verbose. It details decisions about interesting optimization (like inlining and tail call)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Console line parameter&lt;/strong&gt; - The parameter &lt;code&gt;-p EP&lt;/code&gt; or &lt;code&gt;--profiler EP&lt;/code&gt; can be used to enable this profiler from the console line.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Custom config&lt;/strong&gt; - The most advanced and powerful way is to use a custom configuration.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The first thing which should be done is the configuration class. The &lt;code&gt;EventPipeProfiler&lt;/code&gt; constructor can take the profile and/or a list of providers.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;CustomConfig&lt;/span&gt; : ManualConfig
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; CustomConfig()
+        {
+            AddJob(Job.ShortRun.WithRuntime(CoreRuntime.Core30));
+
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; providers = &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt;[] &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- custom list of providers
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;            {
+                &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; EventPipeProvider(ClrTraceEventParser.ProviderName, EventLevel.Verbose,
+                    (&lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt;) (ClrTraceEventParser.Keywords.Exception
+                    | ClrTraceEventParser.Keywords.GC
+                    | ClrTraceEventParser.Keywords.Jit
+                    | ClrTraceEventParser.Keywords.JitTracing &lt;span style=&#34;color:#75715e&#34;&gt;// for the inlining events
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;                    | ClrTraceEventParser.Keywords.Loader
+                    | ClrTraceEventParser.Keywords.NGen)),
+                &lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; EventPipeProvider(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;System.Buffers.ArrayPoolEventSource&amp;#34;&lt;/span&gt;, EventLevel.Informational, &lt;span style=&#34;color:#66d9ef&#34;&gt;long&lt;/span&gt;.MaxValue),
+            };
+
+            AddDiagnoser(&lt;span style=&#34;color:#66d9ef&#34;&gt;new&lt;/span&gt; EventPipeProfiler(providers: providers));  &lt;span style=&#34;color:#75715e&#34;&gt;//&amp;lt;-- Adds new profiler
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        }
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then this configuration can be used in the benchmark class.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-c#&#34; data-lang=&#34;c#&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; BenchmarkDotNet.Samples
+{
+&lt;span style=&#34;color:#a6e22e&#34;&gt;    [Config(typeof(CustomConfig))]&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;IntroEventPipeProfilerAdvanced&lt;/span&gt;
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;CustomConfig&lt;/span&gt; : ManualConfig {} &lt;span style=&#34;color:#75715e&#34;&gt;// &amp;lt;-- Configuration class
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;        [Benchmark]&lt;/span&gt;
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; RentAndReturn_Shared()
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;var&lt;/span&gt; pool = ArrayPool&amp;lt;&lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;&amp;gt;.Shared;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;byte&lt;/span&gt;[] array = pool.Rent(&lt;span style=&#34;color:#ae81ff&#34;&gt;10000&lt;/span&gt;);
+            pool.Return(array);
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As I mentioned before, both &lt;code&gt;EventPipeProfiler&lt;/code&gt; and &lt;code&gt;dotnet trace&lt;/code&gt; use the &lt;code&gt;Microsoft.Diagnostics.NETCore.Client&lt;/code&gt; package internally. So before you start using the custom configuration of this profiler, it is worth reading the documentation &lt;a href=&#34;https://github.com/dotnet/diagnostics/blob/master/documentation/dotnet-trace-instructions.md&#34;&gt;here&lt;/a&gt; and &lt;a href=&#34;https://docs.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-trace#dotnet-trace-collect&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&#34;analyzing-trace-files-using-perfview&#34;&gt;Analyzing trace files using PerfView&lt;/h2&gt;
+
+&lt;p&gt;This topic is completely described on Adam Sitnik&amp;rsquo;s blog, &lt;a href=&#34;https://adamsitnik.com/ETW-Profiler/#using-perfview-to-work-with-trace-files&#34;&gt;here&lt;/a&gt;, so I&amp;rsquo;m not going to duplicate that information here.&lt;/p&gt;
+
+&lt;h2 id=&#34;thanks&#34;&gt;Thanks&lt;/h2&gt;
+
+&lt;p&gt;I would like to thank:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;https://adamsitnik.com/&#34;&gt;Adam Sitnik&lt;/a&gt; - for the review and the farther improvement in this profiler, I mean &lt;a href=&#34;https://github.com/dotnet/BenchmarkDotNet/pull/1381&#34;&gt;dotnet/BenchmarkDotNet#1381&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/sywhang&#34;&gt;Sung Yoon Whang&lt;/a&gt; - for great work in &lt;a href=&#34;https://www.nuget.org/packages/Microsoft.Diagnostics.NETCore.Client&#34;&gt;Microsoft.Diagnostics.NETCore.Client&lt;/a&gt; nuget package, especially for quick release the final version of this package.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://conf.dotnetos.org/&#34;&gt;Dotnetos&lt;/a&gt; Conference - without which I could have not started work at all.&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+     </item>
    
      <item>
        <title>How to run BenchmarkDotNet in a Docker container</title>
