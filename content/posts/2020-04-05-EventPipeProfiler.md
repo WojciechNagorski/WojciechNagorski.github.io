@@ -15,7 +15,7 @@ tags:
   - EventPipeProfiler
 ---
 
-`EventPipeProfiler` is a new cross-platform profiler that I've implemented in the [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet) library. It allows profile .NET code on every platform - Windows, Linux, macOS. Collected data are exported to trace files (`.speedscope.json` and `.nettrace`) which can be analyzed using [SpeedScope](https://www.speedscope.app/), [PerfView](https://github.com/Microsoft/perfview), and [Windows Performance Analyzer](https://docs.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer). This new profiler will be available from 0.12.1 version.
+`EventPipeProfiler` is a new cross-platform profiler that I've implemented in the [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet) library. It allows profile .NET code on every platform - Windows, Linux, macOS. Collected data are exported to trace files (`.speedscope.json` and `.nettrace`) which can be analyzed using [SpeedScope](https://www.speedscope.app/), [PerfView](https://github.com/Microsoft/perfview), and [Visual Studio Profiler](https://docs.microsoft.com/en-us/visualstudio/profiling/profiling-feature-tour). This new profiler will be available from 0.12.1 version.
 
 ## Demo
 
