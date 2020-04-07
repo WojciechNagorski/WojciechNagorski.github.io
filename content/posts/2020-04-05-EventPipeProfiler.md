@@ -69,7 +69,7 @@ And the exported `.speedscope.json` file can be opened in [SpeedScope](https://w
 
 [`EtwProfiler`](https://adamsitnik.com/ETW-Profiler/) profiler is very popular but works only on Windows. .NET Core 3.0 shipped a new cool diagnostics features and tools, so it became possible to create a new cross-platform profiler. 
 
-On the [Dotnetos](https://conf.dotnetos.org/) Conference 2019, Adam Sitnik showed the new [`dotnet trace`](https://docs.microsoft.com/pl-pl/dotnet/core/diagnostics/dotnet-trace) tool on his [.NET Performance Investigation](https://www.youtube.com/watch?v=y4HV5m5GR7o) presentation. During break, I came up with a proposition why we didn't use it in BenchmarkDotNet? My first idea was to use `dotnet trace` command directly in the profiler, but it was not possible because of an [issue](https://github.com/dotnet/diagnostics/issues/645). The second option was using `Microsoft.Diagnostics.NETCore.Client` nuget package which allows everyone to create a profiler in no time. There was only one problem, this package was published in the preview version and I could not able to use it in BenchmarkDotNet. Luckily [Sung Yoon Whang](https://github.com/sywhang) came with help and released a final version right away. 
+On the [Dotnetos](https://conf.dotnetos.org/) Conference 2019, Adam Sitnik showed the new [`dotnet trace`](https://docs.microsoft.com/pl-pl/dotnet/core/diagnostics/dotnet-trace) tool on his [.NET Performance Investigation](https://www.youtube.com/watch?v=y4HV5m5GR7o) presentation. During a break, I asked Adam why not use it in BenchmarkDotNet? My first idea was to use `dotnet trace` command directly in the profiler, but it was not possible because of an [issue](https://github.com/dotnet/diagnostics/issues/645). The second option was using `Microsoft.Diagnostics.NETCore.Client` nuget package which allows everyone to create a profiler in no time. There was only one problem, this package was published in the preview version and I could not able to use it in BenchmarkDotNet. Luckily [Sung Yoon Whang](https://github.com/sywhang) came with help and released a final version right away. 
 
 All implementation details can be seen in my PR [dotnet/BenchmarkDotNet#1321](https://github.com/dotnet/BenchmarkDotNet/pull/1321).
 
@@ -146,4 +146,4 @@ I would like to thank:
 
 1. [Adam Sitnik](https://adamsitnik.com/) - for the review and the farther improvement in this profiler, I mean [dotnet/BenchmarkDotNet#1381](https://github.com/dotnet/BenchmarkDotNet/pull/1381)
 2. [Sung Yoon Whang](https://github.com/sywhang) - for great work in [Microsoft.Diagnostics.NETCore.Client](https://www.nuget.org/packages/Microsoft.Diagnostics.NETCore.Client) nuget package, especially for quick release the final version of this package.
-3. [Dotnetos](https://conf.dotnetos.org/) Conference - without which I could have not started work at all.
+3. [Dotnetos](https://conf.dotnetos.org/) Conference - without which I could not have started work at all.
