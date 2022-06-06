@@ -9,7 +9,7 @@ meta = "false"
 
 My name is **Wojciech Nagórski**
 
-#I'm a Software Engineer at [Intel Corporation](https://www.intel.com/)#
+I'm a Software Engineer at [Intel Corporation](https://www.intel.com/)
 
 Previously I was Senior Software Engineer & Team Leader at [Solwit S. A.](https://www.solwit.com)
 
